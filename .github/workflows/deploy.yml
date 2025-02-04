@@ -27,14 +27,14 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          cd $GITHUB_WORKSPACE  # Ensure we're in the right directory
+          cd virtual_queue_system  # Move into the correct directory
           python manage.py migrate
 
       - name: Collect Static Files
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          cd $GITHUB_WORKSPACE  # Ensure correct directory
+          cd virtual_queue_system  # Move into the correct directory
           python manage.py collectstatic --noinput
 
       - name: Deploy to Render
