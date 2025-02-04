@@ -23,16 +23,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # - name: Run Migrations
-      #   env:
-      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      #   run: |
-      #     python manage.py migrate
+      - name: Run Migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd $GITHUB_WORKSPACE  # Ensure we're in the right directory
+          python manage.py migrate
 
       - name: Collect Static Files
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          cd $GITHUB_WORKSPACE  # Ensure correct directory
           python manage.py collectstatic --noinput
 
       - name: Deploy to Render
