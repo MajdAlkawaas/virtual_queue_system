@@ -73,11 +73,19 @@ WSGI_APPLICATION = 'virtual_queue_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+import os
+import dj_database_url
+
+DATABASE_URL =  os.getenv("DATABASE_URL")
+print(f"DATABASE_URL= {DATABASE_URL}")
+
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set!")  # Stop execution if missing
+
+
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config()
 }
 
 
