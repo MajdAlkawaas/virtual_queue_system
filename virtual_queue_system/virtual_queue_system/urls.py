@@ -21,7 +21,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('customers/', include('customer.urls')),
+    path('customers/', include('customers.urls')),
+    path('guests/', include('guests.urls'))
 ]
 
 # Serve static files in development
