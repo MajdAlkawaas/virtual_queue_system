@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Dashboard - Spotique</title>
+
+    <!-- Bootstrap & External CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light-mode">
+
+    <!-- 🔹 Navigation Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">Spotique</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="logout.html">Logout</a></li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light" id="dark-mode-toggle">🌙</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 🔹 Hero Section with Live Queue Status -->
+    <div class="hero-section queue-dashboard">
+        <div class="queue-status-overlay text-center">
+            <h2 class="queue-title">Live Queue Status</h2>
+            <p>Your Position: <strong id="queue-position">1</strong></p>
+            <p>Estimated Wait Time: <strong id="wait-time">0 min</strong></p>
+            <div class="progress">
+                <div class="progress-bar bg-success" id="progress-bar" style="width: 100%;">It's Your Turn!</div>
+            </div>
+            <button class="btn btn-info btn-custom mt-3" onclick="updateQueue()">Refresh Status</button>
+        </div>
+    </div>
+
+    <!-- 🔹 Entertainment Section -->
+    <div class="container mt-4 queue-container p-4 rounded shadow">
+        <h3 class="text-center">Entertainment</h3>
+        <div class="text-center">
+            <button class="btn btn-success btn-custom" onclick="playMusic()">🎵 Play Music</button>
+            <button class="btn btn-primary btn-custom" onclick="startGame()">🎮 Play Game</button>
+        </div>
+    </div>
+
+    <!-- 🔹 Guest Feedback & Rating -->
+    <div class="container mt-4 queue-container p-4 rounded shadow">
+        <h2 class="text-center">Rate Your Experience</h2>
+        <p class="text-center">How was your service today?</p>
+        <div class="text-center">
+            <span class="star" onclick="rateExperience(1)">⭐</span>
+            <span class="star" onclick="rateExperience(2)">⭐</span>
+            <span class="star" onclick="rateExperience(3)">⭐</span>
+            <span class="star" onclick="rateExperience(4)">⭐</span>
+            <span class="star" onclick="rateExperience(5)">⭐</span>
+        </div>
+        <textarea class="form-control mt-3" id="feedback" placeholder="Leave a comment..."></textarea>
+        <button class="btn btn-primary mt-2 w-100" onclick="submitFeedback()">Submit Feedback</button>
+        <p id="rating-message" class="text-center mt-2"></p>
+    </div>
+
+    <!-- 🔹 Footer -->
+    <footer class="footer mt-5 py-3 text-center">
+        <p>© 2025 Spotique. All rights reserved.</p>
+    </footer>
+
+    <!-- 🔹 JavaScript -->
+    <script src="js/script.js"></script>
+    <script src="js/queue.js"></script>
+    <script src="js/rating.js"></script>
+    <script src="js/entertainment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

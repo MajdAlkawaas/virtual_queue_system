@@ -1,0 +1,58 @@
+/* Smooth Fade-in Effect */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Dynamic Color Animation for Welcome Text */
+@keyframes fadeColor {
+    0% { color: #FF7F50; } /* Coral */
+    25% { color: #FFD700; } /* Gold */
+    50% { color: #6495ED; } /* Cornflower Blue */
+    75% { color: #9370DB; } /* Medium Purple */
+    100% { color: #FF7F50; } /* Coral */
+}
+
+.animated-text {
+    animation: fadeColor 5s infinite alternate ease-in-out;
+}
+
+/* Floating Effect for Icons */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.float {
+    animation: float 3s infinite ease-in-out;
+}
+/* Enhanced Button Hover */
+.btn:hover {
+    transform: scale(1.07);
+    box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.4);
+}
+
+/* Smooth Input Focus */
+input:focus {
+    border-color: var(--button-bg);
+    box-shadow: 0px 0px 8px var(--accent-color);
+}
+
+
+/* Button Hover Pulse */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.animated.pulse {
+    animation: pulse 0.5s ease-in-out;
+}

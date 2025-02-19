@@ -1,0 +1,186 @@
+/* Light Mode Variables */
+:root {
+    --primary-color: #0077B6;
+    --secondary-color: #90E0EF;
+    --background-color: #F6F9FC;
+    --text-color: #2C2C2C;
+    --nav-bg: #CAF0F8;
+    --overlay-bg: rgba(255, 255, 255, 0.95);
+    --accent-color: #00B4D8;
+    --button-bg: #0077B6;
+    --button-hover: #0096C7;
+}
+
+/* Dark Mode Variables */
+.dark-mode {
+    --primary-color: #0D1B2A;
+    --secondary-color: #415A77;
+    --background-color: #1B263B;
+    --text-color: #E0E1DD;
+    --nav-bg: #778DA9;
+    --overlay-bg: rgba(13, 27, 42, 0.85);
+    --accent-color: #89CFF0;
+    --button-bg: #FFC107;
+    --button-hover: #FFA000;
+}
+
+/* General Page Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background 0.4s ease-in-out, color 0.4s ease-in-out;
+}
+
+/* Navigation Bar */
+.navbar {
+    background: var(--primary-color);
+    transition: all 0.3s ease-in-out;
+}
+.navbar-brand, .nav-link {
+    color: var(--nav-bg) !important;
+    font-weight: 600;
+}
+.navbar-toggler {
+    border: none;
+    outline: none;
+}
+
+/* Dashboard Cards */
+.card {
+    border: none;
+    background-color: var(--background-color);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+.card:hover {
+    transform: scale(1.03);
+}
+
+/*  Forms */
+.login-form, .queue-status-overlay, .game-box {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background: var(--overlay-bg);
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Buttons */
+.btn {
+    background-color: var(--button-bg);
+    color: #ffffff;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+}
+.btn:hover {
+    background-color: var(--button-hover);
+    transform: scale(1.05);
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    padding: 140px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Overlay Box for Readability */
+.overlay-box {
+    background: var(--overlay-bg);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    max-width: 650px;
+    width: 90%;
+    text-align: center;
+    backdrop-filter: blur(12px);
+}
+
+/* Added Queue Dashboard Styles from queue.css */
+.queue-dashboard {
+    background: url('../images/queue_dashboard_bg.webp') center/cover no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+}
+
+/* Queue Status Overlay */
+.queue-status-overlay {
+    background: var(--overlay-bg);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Buttons */
+.btn-custom {
+    font-size: 1rem;
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+}
+.btn-custom:hover {
+    transform: scale(1.05);
+}
+
+/* Rating System */
+.star {
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+.star:hover {
+    transform: scale(1.2);
+}
+
+
+/* Game Box */
+.game-box {
+    background: var(--overlay-bg);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 30px;
+    text-align: center;
+}
+
+/* Progress Bar */
+.progress {
+    height: 30px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 80px 15px;
+    }
+    .overlay-box {
+        padding: 30px;
+    }
+    .overlay-box h1 {
+        font-size: 2.2rem;
+    }
+}
