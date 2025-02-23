@@ -1,7 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("App Loaded");
+
     const registerForm = document.getElementById("register-form");
     const loginForm = document.getElementById("login-form");
+    const forgotPasswordForm = document.getElementById("forgot-password-form");
     const messageBox = document.getElementById("form-message");
+    const errorMessage = document.getElementById("error-message");
 
     /* ========================= REGISTER LOGIC ========================= */
     if (registerForm) {
@@ -44,19 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server Error (${response.status})`);
-                }
-                return response.text();
-            })
-            .then(text => {
-                try {
-                    return text ? JSON.parse(text) : {};
-                } catch (error) {
-                    return {}; // Return empty object if JSON parsing fails
-                }
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     sessionStorage.setItem("guestData", JSON.stringify(formData));
@@ -79,7 +71,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const email = document.getElementById("email");
             const password = document.getElementById("password");
-            const errorMessage = document.getElementById("error-message");
 
             // Reset error messages
             [email, password].forEach(field => field.classList.remove("is-invalid"));
@@ -108,19 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(loginData)
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Server Error (${response.status})`);
-                }
-                return response.text();
-            })
-            .then(text => {
-                try {
-                    return text ? JSON.parse(text) : {};
-                } catch (error) {
-                    return {}; // Return empty object if JSON parsing fails
-                }
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     sessionStorage.setItem("user", JSON.stringify(data.user));
@@ -140,5 +119,60 @@ document.addEventListener("DOMContentLoaded", function () {
                 errorMessage.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
             });
         });
+    }
+
+    /* ========================= FORGOT PASSWORD LOGIC ========================= */
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById("email");
+            email.classList.remove("is-invalid");
+
+            if (!email.value.match(/^[^@]+@[^@]+\.[a-zA-Z]{2,}$/)) {
+                email.classList.add("is-invalid");
+                return;
+            }
+
+            messageBox.innerHTML = `<p class="text-info">Processing...</p>`;
+
+            fetch("/api/forgot-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email.value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageBox.innerHTML = `<p class="text-success">Reset link sent! Check your email.</p>`;
+                } else {
+                    messageBox.innerHTML = `<p class="text-danger">${data.message || "Error sending reset link."}</p>`;
+                }
+            })
+            .catch(error => {
+                messageBox.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+            });
+        });
+    }
+
+    /* ========================= LOGOUT LOGIC ========================= */
+    if (window.location.pathname.includes("logout.html")) {
+        console.log("Logging out user...");
+        
+        // Clear Session Storage
+        sessionStorage.removeItem("user");
+
+        // Countdown Before Redirecting
+        let countdown = 3;
+        const countdownElement = document.getElementById("countdown");
+
+        const interval = setInterval(() => {
+            countdown--;
+            if (countdownElement) countdownElement.textContent = countdown;
+            if (countdown === 0) {
+                clearInterval(interval);
+                window.location.href = "index.html"; // Redirect to home page
+            }
+        }, 1000);
     }
 });

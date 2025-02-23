@@ -6,13 +6,13 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", function () {
             loadGame(this.dataset.game);
         });
-    });
+    });    
 });
 
 /*  Game Selection Logic */
 function loadGame(gameName) {
     const gameContainer = document.getElementById("game-content");
-    gameContainer.innerHTML = ""; /
+    gameContainer.innerHTML = ""; 
 
     switch (gameName) {
         case "rock-paper-scissors":

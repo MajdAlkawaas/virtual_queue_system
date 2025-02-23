@@ -297,7 +297,233 @@ body {
 
 /*------------------------------ GAME - End ---------------------------*/
 
-/* Responsive Design */
+/*------------------------------ Manager - Start ---------------------------*/
+/* Manager Dashboard Hero */
+.manager-hero {
+    background: url('../images/manager_dashboard_bg.webp') center/cover no-repeat;
+    padding: 100px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px;
+}
+
+/* Overlay Box */
+.overlay-box {
+    background: var(--overlay-bg);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 650px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0px 4px 10px var(--shadow-color);
+}
+
+/* Tables & Container */
+.table-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.table-wrapper {
+    flex: 1;
+    min-width: 45%;
+}
+
+.table {
+    width: 100%;
+    background: var(--card-bg);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.table th {
+    background: var(--primary-color);
+    color: white;
+    text-align: center;
+}
+
+.dark-mode .table {
+    background: var(--overlay-bg);
+}
+
+/* Manager Controls */
+.manager-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.manager-controls .btn {
+    flex: 1 1 250px;
+    font-size: 1rem;
+    background-color: var(--button-bg);
+    color: white;
+    padding: 12px;
+    border-radius: 5px;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+
+.manager-controls .btn:hover {
+    background-color: var(--button-hover);
+}
+
+/* Performance Analytics */
+.manager-analytics {
+    text-align: center;
+    margin-top: 40px;
+}
+
+#managerPerformanceChart {
+    max-width: 600px;
+    margin: auto;
+}
+
+
+@media (max-width: 768px) {
+    .manager-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .manager-controls .btn {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    .overlay-box {
+        padding: 25px;
+    }
+
+    #managerPerformanceChart {
+        max-width: 100%;
+    }
+}
+/*------------------------------ Manager - End ---------------------------*/
+
+
+/* ------------------------------ Operator - Start --------------------------- */
+
+/* Operator Dashboard Hero */
+.operator-dashboard {
+    background: url('../images/operator_dashboard_bg.webp') center/cover no-repeat;
+    padding: 100px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 250px;
+}
+
+/* Queue Status Overlay */
+.operator-overlay {
+    background: var(--overlay-bg);
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 650px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0px 4px 10px var(--shadow-color);
+}
+
+/* Queue Management Table */
+.operator-queue-table {
+    width: 100%;
+    background: var(--card-bg);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.operator-queue-table th {
+    background: var(--primary-color);
+    color: white;
+    text-align: center;
+}
+
+.dark-mode .operator-queue-table {
+    background: var(--overlay-bg);
+}
+
+/* Operator Controls */
+.operator-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.operator-controls .btn {
+    flex: 1 1 250px;
+    font-size: 1rem;
+    background-color: var(--button-bg);
+    color: white;
+    padding: 12px;
+    border-radius: 5px;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+
+.operator-controls .btn:hover {
+    background-color: var(--button-hover);
+}
+
+/* Operator Analytics */
+.operator-analytics {
+    text-align: center;
+    margin-top: 40px;
+}
+
+#operatorPerformanceChart {
+    max-width: 600px;
+    margin: auto;
+}
+
+/* ------------------------------ Operator - End --------------------------- */
+
+/* ------------------------------ Responsive Design --------------------------- */
+@media (max-width: 992px) {
+    .table-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .table-wrapper {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .operator-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .operator-controls .btn {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    .operator-overlay {
+        padding: 25px;
+    }
+
+    #operatorPerformanceChart {
+        max-width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     .hero-section {
         padding: 90px 15px;
