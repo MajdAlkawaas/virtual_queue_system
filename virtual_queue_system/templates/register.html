@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Spotique</title>
 
+    <!-- Favicon -->
+    <link rel="icon" href="images/favicon-32x32.png" type="image/x-icon">
+
     <!-- Bootstrap & External CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
@@ -23,7 +26,7 @@
                     <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
                     <li class="nav-item">
-                        <button class="btn btn-outline-light" id="dark-mode-toggle">🌙</button>
+                        <button class="btn btn-outline-light" id="dark-mode-toggle" aria-label="Toggle Dark Mode">🌙</button>
                     </li>
                 </ul>
             </div>
@@ -36,36 +39,42 @@
         <form id="register-form">
             <div class="mb-3">
                 <label for="name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name" required aria-required="true">
+                <div class="invalid-feedback">Please enter your full name.</div>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email" required aria-required="true">
+                <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
             <div class="mb-3">
                 <label for="phone" class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number" required>
+                <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number" required pattern="[0-9]{10}" aria-required="true">
+                <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
             </div>
             <div class="mb-3">
                 <label for="issue" class="form-label">Issue Type</label>
-                <select class="form-select" id="issue" required>
+                <select class="form-select" id="issue" required aria-required="true">
+                    <option value="">Select an issue type</option>
                     <option value="Technical Support">Technical Support</option>
                     <option value="Billing Inquiry">Billing Inquiry</option>
                     <option value="General Query">General Query</option>
                     <option value="Other">Other</option>
                 </select>
+                <div class="invalid-feedback">Please select an issue type.</div>
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Additional Description (Optional)</label>
                 <textarea class="form-control" id="description" rows="3" placeholder="Describe your issue..."></textarea>
             </div>
             <button type="submit" class="btn btn-primary w-100">Register</button>
+            <div id="form-message" class="text-center mt-3"></div>
         </form>
     </div>
 
     <!-- Bootstrap & External JS -->
-    <script src="js/script.js"></script>
-    <script src="js/logic.js"></script> <!-- New logic handling for form -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script> 
+    <script src="js/logic.js"></script> 
 </body>
 </html>

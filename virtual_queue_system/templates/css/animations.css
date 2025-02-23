@@ -1,8 +1,8 @@
-/* Smooth Fade-in Effect */
+/* Fade-in Effect */
 .fade-in {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transform: translateY(15px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
 .fade-in.visible {
@@ -12,47 +12,53 @@
 
 /* Dynamic Color Animation for Welcome Text */
 @keyframes fadeColor {
-    0% { color: #FF7F50; } /* Coral */
-    25% { color: #FFD700; } /* Gold */
-    50% { color: #6495ED; } /* Cornflower Blue */
-    75% { color: #9370DB; } /* Medium Purple */
-    100% { color: #FF7F50; } /* Coral */
+    0% { color: #FF7F50; text-shadow: 2px 2px 10px rgba(255, 127, 80, 0.5); } /* Coral */
+    25% { color: #FFD700; text-shadow: 2px 2px 10px rgba(255, 215, 0, 0.5); } /* Gold */
+    50% { color: #6495ED; text-shadow: 2px 2px 10px rgba(100, 149, 237, 0.5); } /* Cornflower Blue */
+    75% { color: #9370DB; text-shadow: 2px 2px 10px rgba(147, 112, 219, 0.5); } /* Medium Purple */
+    100% { color: #FF7F50; text-shadow: 2px 2px 10px rgba(255, 127, 80, 0.5); } /* Coral */
 }
 
 .animated-text {
-    animation: fadeColor 5s infinite alternate ease-in-out;
+    animation: fadeColor 4s infinite alternate ease-in-out;
+    font-weight: bold;
 }
 
 /* Floating Effect for Icons */
 @keyframes float {
     0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-6px); }
     100% { transform: translateY(0px); }
 }
 
 .float {
-    animation: float 3s infinite ease-in-out;
+    animation: float 4s infinite ease-in-out;
 }
-/* Enhanced Button Hover */
+
+/* Button Hover */
+.btn {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
 .btn:hover {
-    transform: scale(1.07);
-    box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.4);
 }
 
-/* Smooth Input Focus */
+/* Input Focus */
 input:focus {
-    border-color: var(--button-bg);
-    box-shadow: 0px 0px 8px var(--accent-color);
+    border-color: var(--button-bg, #FFD700); /* Fallback color: Gold */
+    box-shadow: 0px 0px 8px var(--accent-color, rgba(255, 215, 0, 0.6)); /* Fallback color */
+    outline: none;
 }
-
 
 /* Button Hover Pulse */
 @keyframes pulse {
     0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
 
 .animated.pulse {
-    animation: pulse 0.5s ease-in-out;
+    animation: pulse 0.4s ease-in-out;
 }

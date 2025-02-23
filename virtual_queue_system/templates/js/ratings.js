@@ -13,13 +13,25 @@ function rateExperience(stars) {
     // Store rating in local storage
     localStorage.setItem("guestRating", stars);
 
-    // Disable further clicks after rating
-    starElements.forEach(star => {
-        star.onclick = null;
-    });
+    // Send rating to backend 
+    sendRatingToBackend(stars);
 }
 
-// Function to restore rating from local storage
+// Function to Send Rating to Backend API
+function sendRatingToBackend(stars) {
+    fetch("http://127.0.0.1:8000/api/submit-rating/", {  // Update with your actual API URL
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rating: stars, guest_id: 1 })  // will Replace `1` with dynamic user ID
+    })
+    .then(response => response.json())
+    .then(data => console.log("Rating Submitted:", data))
+    .catch(error => console.error("Error submitting rating:", error));
+}
+
+// Restore rating from local storage when page loads
 document.addEventListener("DOMContentLoaded", function () {
     const savedRating = localStorage.getItem("guestRating");
     if (savedRating) {
