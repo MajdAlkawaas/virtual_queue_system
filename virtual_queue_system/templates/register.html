@@ -35,32 +35,32 @@
     <!-- Registration Form -->
     <div class="container mt-4">
         <h2 class="text-center">Register</h2>
-        <form id="register-form">
+        <form id="register-form" class="p-4 shadow rounded bg-white">
             <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
+                <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="name" placeholder="Enter your name" required aria-required="true">
                 <div class="invalid-feedback">Please enter your full name.</div>
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                 <input type="email" class="form-control" id="email" placeholder="Enter your email" required aria-required="true">
                 <div class="invalid-feedback">Please enter a valid email address.</div>
             </div>
             <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
+                <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
                 <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number" required pattern="[0-9]{10}" aria-required="true">
                 <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div>
             </div>
             <div class="mb-3">
-                <label for="issue" class="form-label">Issue Type</label>
+                <label for="issue" class="form-label">Service <span class="text-danger">*</span></label>
                 <select class="form-select" id="issue" required aria-required="true">
-                    <option value="">Select an issue type</option>
+                    <option value="">Select an service type</option>
                     <option value="Technical Support">Technical Support</option>
                     <option value="Billing Inquiry">Billing Inquiry</option>
                     <option value="General Query">General Query</option>
                     <option value="Other">Other</option>
                 </select>
-                <div class="invalid-feedback">Please select an issue type.</div>
+                <div class="invalid-feedback">Please select an service type.</div>
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Additional Description (Optional)</label>

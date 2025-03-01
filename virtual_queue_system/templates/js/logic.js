@@ -78,11 +78,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             let isValid = true;
 
-            // Validation
+            /* // Validation
             if (!email.value.match(/^[^@]+@[^@]+\.[a-zA-Z]{2,}$/)) email.classList.add("is-invalid"), isValid = false;
             if (password.value.trim().length < 6) password.classList.add("is-invalid"), isValid = false;
 
-            if (!isValid) return;
+            if (!isValid) return; */
 
             // Show loading state
             errorMessage.innerHTML = `<p class="text-info">Logging in...</p>`;
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 password: password.value
             };
 
-            // Send Login Request to Backend
+            /*// Send Login Request to Backend
             fetch("/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => {
                 errorMessage.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
-            });
+            });*/
         });
     }
 
