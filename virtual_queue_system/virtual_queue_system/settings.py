@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -57,7 +57,7 @@ ROOT_URLCONF = 'virtual_queue_system.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,6 +131,12 @@ STATIC_URL = 'static/'
 # This is where 'collectstatic' will collect all static files
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+
+# Add any directories where static files are stored that aren't inside app-specific folders
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "templates")  # Example, if your static files are in 'my_project/static/'
+]
+
 # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
 # and renames the files with unique names for each version to support long-term caching
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -139,3 +145,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+AUTH_USER_MODEL = "customers.User"
