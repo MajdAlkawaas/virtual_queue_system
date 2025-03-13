@@ -3,10 +3,10 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm
+from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm, CreateQueueForm
 from .models import Manager, Operator, Queue, Category
 # from .forms import ManagerSignupForm, OperatorSignupForm, CustomerSignupForm, LoginForm
-from customers.decorators import manager_required, operator_required, customer_required
+from customers.decorators import manager_required, operator_required
 
 # Manager signup view
 def manager_signup(request):
@@ -114,6 +114,44 @@ def manager_dashboard(request):
                 "operators" : operators,}
     
     return render(request, 'manager.html', context)
+
+
+from django.shortcuts import render, redirect
+from .models import Queue, Category, Operator
+from .forms import CreateQueueForm
+
+@manager_required
+def create_queue(request):
+    manager = getattr(request.user, 'manager', None)  
+    operators = Operator.objects.filter(manager=manager)  
+
+    if request.method == "POST":
+        form = CreateQueueForm(request.POST, manager=manager)
+        if form.is_valid():
+            queue = form.save(commit=False)
+            queue.manager = manager  
+            queue.save()
+            form.save_m2m()  
+
+            # Handle category creation
+            categories_input = form.cleaned_data['categories']
+            if categories_input:
+                category_names = [name.strip() for name in categories_input.split(',')]
+                for cat_name in category_names:
+                    if cat_name:  
+                        Category.objects.create(name=cat_name, queue=queue)
+
+            return redirect('dashboard')  
+        else:
+            print("HERE: form is not valid")
+            print(form.errors)
+    else:
+        print("HERE: loading queue form")
+        form = CreateQueueForm(manager=manager)
+
+    return render(request, "create_queue.html", {"form": form, "operators": operators})
+
+
 
 @operator_required
 def operator_dashboard(request):
