@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm
 from .models import Manager, Operator, Queue, Category
 # from .forms import ManagerSignupForm, OperatorSignupForm, CustomerSignupForm, LoginForm
-
+from customers.decorators import manager_required, operator_required, customer_required
 
 # Manager signup view
 def manager_signup(request):
@@ -101,7 +101,7 @@ def user_logout(request):
     return redirect('login')  # Redirect to the login page after logout
 
 
-
+@manager_required
 def manager_dashboard(request):
     manager   = Manager.objects.get(user=request.user)
     print(manager)
@@ -115,6 +115,7 @@ def manager_dashboard(request):
     
     return render(request, 'manager.html', context)
 
+@operator_required
 def operator_dashboard(request):
     # manager   = Manager.objects.get(user=request.user)
     # print(manager)
