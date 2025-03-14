@@ -128,6 +128,7 @@ def create_queue(request):
     if request.method == "POST":
         form = CreateQueueForm(request.POST, manager=manager)
         if form.is_valid():
+            print("HERE:", form.cleaned_data['operators']) 
             queue = form.save(commit=False)
             queue.manager = manager  
             queue.save()
