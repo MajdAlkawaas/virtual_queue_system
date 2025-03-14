@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
-from .models import User, Customer, Operator, Manager
+from .models import User, Customer, Operator, Manager, Category, Queue
 
 from django.db.models import Count
 import random
@@ -74,8 +74,6 @@ class OperatorSignupForm(forms.ModelForm):
                                     manager=self.manager)  # Explicitly create a Manager instance
         return user
 
-
-
 class LoginForm(forms.Form):
     username = forms.CharField(
         max_length=150,
@@ -101,3 +99,55 @@ class LoginForm(forms.Form):
             if not user:
                 raise forms.ValidationError("Invalid username or password")
         return cleaned_data
+
+
+
+
+class CreateQueueForm(forms.Form):
+    name = forms.CharField(
+        max_length=50, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Queue Name'})
+    )
+    operators = forms.ModelMultipleChoiceField(
+        queryset = Operator.objects.none(),                               # We will set this dynamically in __init__
+        widget   = forms.SelectMultiple(attrs={'class': 'form-control'}),
+        required = False
+    )
+    categories = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated categories'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.manager = kwargs.pop('manager', None)
+        super().__init__(*args, **kwargs)
+
+        if self.manager:
+            self.fields['operators'].queryset = Operator.objects.filter(manager=self.manager)
+            
+            print(self.fields['operators'].queryset)
+    def save(self, *args, **kwargs):
+        # Ensure manager is available
+        if not self.manager:
+            raise ValueError("Manager must be provided to save the queue.")
+
+        # Create Queue
+        queue = Queue.objects.create(
+            name    = self.cleaned_data['name'],
+            manager = self.manager,
+            active  = True
+        )
+
+        # Assign Operators
+        operators = self.cleaned_data.get('operators', [])
+        print("HERE", operators)
+        queue.operator_set.set(operators)
+
+        # # Create and Assign Categories
+        # category_names = self.cleaned_data.get('categories', "").split(",")
+        # for cat_name in category_names:
+        #     cat_name = cat_name.strip()
+        #     if cat_name:  # Avoid empty names
+        #         Category.objects.create(name=cat_name, queue=queue)
+
+        return queue
