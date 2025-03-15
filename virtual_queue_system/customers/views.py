@@ -154,16 +154,12 @@ def create_queue(request):
 
 
 
+
 @operator_required
 def operator_dashboard(request):
-    # manager   = Manager.objects.get(user=request.user)
-    # print(manager)
-    # print(type(manager))
-    # queues    = Queue.objects.filter(manager=manager)
-    # operators = Operator.objects.filter(manager=manager)
+    operator = Operator.objects.get(user=request.user)  # Get the logged-in operator
+    queues = Queue.objects.filter(operator=operator) 
+    print(f"Operator: {operator}")
+    print(f"Queues Assigned: {list(queues)}")  
+    return render(request, 'operator.html', {'operator': operator, 'queues': queues})
 
-
-    # context  = {"queues" : queues,
-    #             "operators" : operators,}
-    
-    return render(request, 'operator.html', {})

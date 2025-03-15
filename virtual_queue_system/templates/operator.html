@@ -2,96 +2,134 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spotique - Operator Dashboard</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="images/favicon-32x32.png" type="image/x-icon">
+    <link
+      rel="icon"
+      href="{% static 'images/favicon-32x32.png' %}"
+      type="image/x-icon"
+    />
 
     <!-- Bootstrap & Custom Styles -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- <link rel="stylesheet" href="css/styles.css"> -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
 
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-</head>
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
 
-<body>
-
+  <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">Spotique</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li> -->
-                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
-                    <li class="nav-item">
-                        <button class="btn btn-outline-light" id="dark-mode-toggle">🌙</button>
-                    </li>
-                </ul>
-            </div>
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'operator_dashboard' %}"
+          >Spotique</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-outline-light" id="dark-mode-toggle">
+                🌙
+              </button>
+            </li>
+          </ul>
         </div>
+      </div>
     </nav>
 
     <!-- Hero Section with Operator Info -->
     <div class="hero-section operator-dashboard">
-        <div class="queue-status-overlay text-center">
-            <h2 class="queue-title">Operator Dashboard</h2>
-            <p><strong>Name:</strong> <span id="operator-name">Loading...</span></p>
-            <p><strong>Operator ID:</strong> <span id="operator-id">Loading...</span></p>
-        </div>
+      <div class="queue-status-overlay text-center">
+        <h2 class="queue-title">Operator Dashboard</h2>
+        <p><strong>Name:</strong> {{ operator.user.username }}</p>
+        <p><strong>Operator ID:</strong> {{ operator.user.id }}</p>
+      </div>
     </div>
 
     <!-- Live Queue Status -->
     <section class="container mt-5">
-        <h2 class="text-center fade-in">Live Queue</h2>
-        <table class="table table-hover fade-in">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Contact</th>
-                    <th>Issue</th>
-                    <th>Estimated Service Time</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="queue-list">
-                <tr><td colspan="6" class="text-center">Loading Queue...</td></tr>
-            </tbody>
-        </table>
+      <h2 class="text-center fade-in">Live Queues</h2>
+      <table class="table table-hover fade-in">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Queue Name</th>
+            <th>Created At</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="queue-list">
+          {% if queues %} {% for queue in queues %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ queue.name }}</td>
+            <td>{{ queue.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+              {% if queue.active %}
+              <span class="badge bg-success">Active</span>
+              {% else %}
+              <span class="badge bg-danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="#" class="btn btn-primary btn-sm">View</a>
+            </td>
+          </tr>
+          {% endfor %} {% else %}
+          <tr>
+            <td colspan="5" class="text-center">No queues available.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
     </section>
 
     <!-- Operator Performance Analytics -->
     <section class="operator-analytics container text-center mt-5">
-        <h2 class="fade-in">Your Performance Analytics</h2>
-        <p><strong>Customers Assisted:</strong> <span id="customers-assisted">0</span></p>
-        <p><strong>Average Service Time:</strong> <span id="avg-service-time">0 mins</span></p>
-        <div class="chart-container">
-            <canvas id="performanceChart"></canvas>
-        </div>
+      <h2 class="fade-in">Your Performance Analytics</h2>
+      <p>
+        <strong>Customers Assisted:</strong>
+        <span id="customers-assisted">0</span>
+      </p>
+      <p>
+        <strong>Average Service Time:</strong>
+        <span id="avg-service-time">0 mins</span>
+      </p>
+      <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer mt-5 py-3 bg-dark text-white text-center">
-        <p>© 2025 Spotique. All rights reserved.</p>
+      <p>© 2025 Spotique. All rights reserved.</p>
     </footer>
 
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- <script src="js/script.js"></script> -->
-    <!-- <script src="js/operator.js"></script> -->
-
-
     <script src="{% static 'js/script.js' %}"></script>
-    <script src="{% static 'js/operator.js' %}"></script> 
-
-</body>
+    <script src="{% static 'js/operator.js' %}"></script>
+  </body>
 </html>
