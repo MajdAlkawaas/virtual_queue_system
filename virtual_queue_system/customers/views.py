@@ -10,7 +10,9 @@ import datetime
 from django.conf import settings
 from twilio.rest import Client
 from django.utils.timezone import now
-from django.contrib import messages
+from django.contrib import messagesfrom django.shortcuts import get_object_or_404
+import qrcode
+
 # Manager signup view
 def manager_signup(request):
     if request.method == 'POST':
@@ -124,6 +126,35 @@ def create_queue(request):
         print("HERE: loading queue form")
         form = CreateQueueForm(manager=manager)
     return render(request, "create_queue.html", {"form": form, "operators": operators})
+
+
+@manager_required
+def generate_qr_code(request, queue_id):
+    print("HERE: QR code ")
+    queue = get_object_or_404(Queue, pk=queue_id)
+    domain = request.get_host()
+
+    # Generate the URL for the queue
+    queue_url = f"http://{domain}/guests/enter_queue/{queue.id}"
+    print(f"HERE {queue_url}")
+    # Create the QR code
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(queue_url)
+    qr.make(fit=True)
+
+    # Create an image from the QR code
+    img = qr.make_image(fill='black', back_color='white')
+
+    # Return the image as an HTTP response
+    response = HttpResponse(content_type="image/png")
+    img.save(response, "PNG")
+    return response
+
 
 # Operator Dashboard
 @operator_required
