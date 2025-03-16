@@ -16,5 +16,6 @@ urlpatterns = [
     path('queue/<int:queue_id>/', views.queue_detail, name='queue_detail'),
     path('serve_guest/<int:guest_id>/', views.serve_guest, name='serve_guest'),
     path('remove_guest/<int:guest_id>/', views.remove_guest, name='remove_guest'),
+    path('', views.homepage, name='homepage'),
 
 ]
