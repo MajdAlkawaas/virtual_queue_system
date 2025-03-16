@@ -56,6 +56,24 @@
         </div>
       </div>
     </nav>
+    {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+      <div
+        class="alert {% if message.tags == 'success' %}alert-success {% elif message.tags == 'error' %}alert-danger {% endif %} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- Hero Section with Operator Info -->
     <div class="hero-section operator-dashboard">
@@ -93,7 +111,51 @@
               {% endif %}
             </td>
             <td>
-              <a href="#" class="btn btn-primary btn-sm">View</a>
+              <form method="POST" action="{% url 'queue_operator_view' %}">
+                {% csrf_token %}
+                <input type="hidden" name="queue_id" value="{{ queue.id }}" />
+                <a
+                  href="{% url 'queue_detail' queue.id %}"
+                  class="btn btn-primary btn-sm"
+                >
+                  View
+                </a>
+                <button
+                  type="submit"
+                  name="btnRequest"
+                  class="btn btn-warning btn-sm"
+                  {%
+                  if
+                  not
+                  guests_available
+                  %}disabled{%
+                  endif
+                  %}
+                >
+                  Request Next Guest
+                </button>
+                <button
+                  type="submit"
+                  name="btnserve"
+                  class="btn btn-success btn-sm"
+                  {%
+                  if
+                  not
+                  guests_available
+                  %}disabled{%
+                  endif
+                  %}
+                >
+                  Serve & Next
+                </button>
+                <button
+                  type="submit"
+                  name="btnremove"
+                  class="btn btn-danger btn-sm"
+                >
+                  Remove
+                </button>
+              </form>
             </td>
           </tr>
           {% endfor %} {% else %}
@@ -105,22 +167,50 @@
       </table>
     </section>
 
+    <!-- Guests Who Walked Away Table -->
+    <section class="container mt-5">
+      <h2 class="text-center fade-in">Guests Who Walked Away</h2>
+      <table class="table table-hover fade-in">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Queue Name</th>
+            <th>Guest Name</th>
+            <th>Guest Number</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if walked_away_guests %} {% for guest in walked_away_guests %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ guest.queue.name }}</td>
+            <td>{{ guest.name }}</td>
+            <td>{{ guest.guest_number }}</td>
+          </tr>
+          {% endfor %} {% else %}
+          <tr>
+            <td colspan="4" class="text-center">No guests walked away.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </section>
+
     <!-- Operator Performance Analytics -->
     <section class="operator-analytics container text-center mt-5">
       <h2 class="fade-in">Your Performance Analytics</h2>
       <p>
         <strong>Customers Assisted:</strong>
-        <span id="customers-assisted">0</span>
+        <span id="customers-assisted">{{ customers_assisted }}</span>
       </p>
       <p>
         <strong>Average Service Time:</strong>
-        <span id="avg-service-time">0 mins</span>
+        <span id="avg-service-time">{{ avg_service_time }} mins</span>
       </p>
       <div class="chart-container">
         <canvas id="performanceChart"></canvas>
       </div>
     </section>
-
     <!-- Footer -->
     <footer class="footer mt-5 py-3 bg-dark text-white text-center">
       <p>© 2025 Spotique. All rights reserved.</p>

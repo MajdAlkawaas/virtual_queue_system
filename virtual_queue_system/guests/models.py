@@ -20,7 +20,7 @@ class Guest(models.Model): #CHANGE
     end_of_service_time   = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
-        return self.Name
+        return self.name
     
 
 class Music(models.Model):
