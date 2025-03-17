@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 from .models import User, Customer, Operator, Manager, Category, Queue
-
 from django.db.models import Count
 import random
 
@@ -103,51 +102,81 @@ class LoginForm(forms.Form):
 
 
 
-class CreateQueueForm(forms.Form):
+class CreateQueueForm(forms.ModelForm):
+    class Meta:
+        model = Queue
+        fields = ['name', 'operators', 'categories']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'id': 'queue-name'}),
+        }
+
     name = forms.CharField(
-        max_length=50, 
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Queue Name'})
+        widget   = forms.TextInput(attrs={'placeholder': 'Enter Queue Name', 'class':'form-control'}),
+        required = False,
+        label    = "Queue  Name"
     )
-    operators = forms.ModelMultipleChoiceField(
-        queryset = Operator.objects.none(),                               # We will set this dynamically in __init__
-        widget   = forms.SelectMultiple(attrs={'class': 'form-control'}),
-        required = False
+
+    operators = forms.MultipleChoiceField(
+        choices  = [],
+        widget   = forms.CheckboxSelectMultiple, # Optional: Checkbox UI instead of dropdown
+        required = False,
+        label    = "Assign Operators"
+        
     )
+
     categories = forms.CharField(
+        widget   = forms.TextInput(attrs={'placeholder': 'Comma separated categories', 'class':'form-control'}),
+        required = False,
+        label    = "Categories"
+    )
+
+
+    def __init__(self, *args, **kwargs):
+        manager = kwargs.pop('manager', None)
+
+        super().__init__(*args, **kwargs)
+        self.fields['operators'].choices = [(op.pk, op.user.username) for op in Operator.objects.filter(manager=manager)]  # Update choices dynamically
+    
+    
+class ModifyQueueForm(forms.ModelForm):
+    class Meta:
+        model = Queue
+        fields = ['name', 'operators', 'categories']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'id': 'queue-name'}),
+        }
+
+    name = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Enter Queue Name', 'class':'form-control'}),
+        required=True,
+        label="Queue Name"
+    )
+
+    operators = forms.MultipleChoiceField(
+        choices=[],  # Will be set dynamically in __init__
+        widget=forms.CheckboxSelectMultiple,
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated categories'})
+        label="Assign Operators"
+    )
+
+    categories = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Comma separated categories', 'class':'form-control'}),
+        required=False,
+        label="Categories"
     )
 
     def __init__(self, *args, **kwargs):
-        self.manager = kwargs.pop('manager', None)
+        manager = kwargs.pop('manager', None)
         super().__init__(*args, **kwargs)
 
-        if self.manager:
-            self.fields['operators'].queryset = Operator.objects.filter(manager=self.manager)
-            
-            print(self.fields['operators'].queryset)
-    def save(self, *args, **kwargs):
-        # Ensure manager is available
-        if not self.manager:
-            raise ValueError("Manager must be provided to save the queue.")
+        # Get all operators under the current manager
+        self.fields['operators'].choices = [(op.pk, op.user.username) for op in Operator.objects.filter(manager=manager)]
 
-        # Create Queue
-        queue = Queue.objects.create(
-            name    = self.cleaned_data['name'],
-            manager = self.manager,
-            active  = True
-        )
+        # Pre-fill selected operators
+        if self.instance and self.instance.pk:
+            self.fields['operators'].initial = [op.pk for op in self.instance.operator_set.all()]
 
-        # Assign Operators
-        operators = self.cleaned_data.get('operators', [])
-        print("HERE", operators)
-        queue.operator_set.set(operators)
-
-        # # Create and Assign Categories
-        # category_names = self.cleaned_data.get('categories', "").split(",")
-        # for cat_name in category_names:
-        #     cat_name = cat_name.strip()
-        #     if cat_name:  # Avoid empty names
-        #         Category.objects.create(name=cat_name, queue=queue)
-
-        return queue
+        # Pre-fill categories as a comma-separated string
+        if self.instance and self.instance.pk:
+            self.fields['categories'].initial = ", ".join(self.instance.category_set.values_list('name', flat=True))
+     
