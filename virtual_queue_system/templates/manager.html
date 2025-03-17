@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,15 +42,18 @@
             <h1 class="animated-text">Manager Dashboard</h1>
             <p class="animated fadeIn">Monitor queue performance & manage operators efficiently.</p>
             <div class="manager-info">
-                <p><strong>Name:</strong> <span id="manager-name">Loading...</span></p>
-                <p><strong>Manager ID:</strong> <span id="manager-id">Loading...</span></p>
+                <p><strong>Name:</strong> <span id="manager-name">{{user.username}}</span></p>
+                <p><strong>Manager ID:</strong> <span id="manager-id">{{user.id}}</span></p>
             </div>
         </div>
     </header>
 
     <!-- Queue & Operator Management -->
     <section class="container mt-5">
+
         <h2 class="text-center fade-in"> Manage Queues & Operators</h2>
+    </section>
+    <section class="container mt-5">
 
         <div class="table-container">
             <!-- Queue Management Table -->
@@ -58,11 +62,10 @@
                 <table class="table table-hover fade-in">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>Queue ID</th>
                             <th>Queue Name</th>
                             <th>Assigned Operator</th>
-                            <th>Guests in Queue</th>
-                            <th>Avg Wait Time</th>
+                            <th>Categories</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -71,12 +74,16 @@
                         <tr>
                             <td id="queue_id">{{ queue.id }}</td>
                             <td>{{ queue.name }}</td>
-                            <td>{{ queue.operator.user.username }}</td>
-                            <td>{{ queue.guest_count }}</td>
-                            <td>{{ queue.avg_wait_time }} mins</td>
+                            <td>{% for operator in queue.operator_set.all %} {{operator.user.username}} <br> {% endfor %}</td>
+                            <td>{% for category in queue.category_set.all %} {{category}} <br> {% endfor %}</td>
+                            <!-- <td>{{ queue.category }} </td> -->
                             <td>
-                                <a class="btn btn-danger btn-sm" href="{% url 'generate_qr_code' queue.id  %}" target="_blank">QR Code</a>
+                                <a class="btn btn-danger btn-sm" href="{% url 'generate_qr_code' queue.id  %}"
+                                    target="_blank">QR Code</a>
+                                <a class="btn btn-danger btn-sm" href="{% url 'modify_queue' queue.id  %}"
+                                    target="_blank">Open</a>
                             </td>
+
                         </tr>
                         {% empty %}
                         <tr>
@@ -87,26 +94,34 @@
                 </table>
             </div>
 
+        </div>
+    </section>
+    <section class="container mt-5">
+
+        <div class="table-container">
             <!-- Operator Management Table -->
             <div class="table-wrapper">
                 <h4 class="fade-in"> Active Operators</h4>
                 <table class="table table-hover fade-in">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Name</th>
                             <th>Operator ID</th>
-                            <th>Queue Load</th>
+
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Username</th>
+                            <th>Queues</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="operator-list">
                         {% for operator in operators %}
                         <tr>
-                            <td>{{ operator.id }}</td>
-                            <td>{{ operator.user.first_name }} {{ operator.user.last_name }}</td>
-                            <td>{{ operator.operator_id }}</td>
-                            <td>{{ operator.queue_load }}</td>
+                            <td>{{ operator.pk }}</td>
+                            <td>{{ operator.user.first_name }}</td>
+                            <td>{{ operator.user.last_name }}</td>
+                            <td>{{ operator.user.username }}</td>
+                            <td>{% for queue in operator.queue.all %} {{queue}} <br> {% endfor %}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm">Modify</button>
                                 <button class="btn btn-danger btn-sm">Remove</button>
@@ -127,56 +142,15 @@
     <section class="manager-controls container text-center mt-5">
         <h2 class="fade-in"> Manage Operators & Queues</h2>
         <div class="button-container">
-            <button class="btn btn-success fade-in"><a href="{% url 'operator_signup' %}" class="text-white">Add Operator</a></button>
-            <button class="btn btn-warning fade-in">Modify Operator</button>
-            <button class="btn btn-danger fade-in">Remove Operator</button>
-            <button class="btn btn-primary fade-in" data-bs-toggle="modal" data-bs-target="#createQueueModal">Create Queue</button>
+            <a class="btn btn-primary fade-in" href="{% url 'operator_signup' %}" class="text-white">Add Operator</a>
+            <!-- <button class="btn btn-warning fade-in">Modify Operator</button> -->
+            <!-- <button class="btn btn-danger fade-in">Remove Operator</button> -->
+            <a class="btn btn-primary fade-in" href="{% url 'create_queue' %}" class="text-white">Create Queue</a>
         </div>
     </section>
 
     <!-- Queue Creation Modal -->
-    <div class="modal fade" id="createQueueModal" tabindex="-1" aria-labelledby="createQueueModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="createQueueModalLabel">Create Queue</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" action="{% url 'create_queue' %}">
-                        {% csrf_token %}
-                        
-                        <!-- Queue Name -->
-                        <div class="mb-3">
-                            <label for="queue_name" class="form-label">Queue Name:</label>
-                            <input type="text" id="queue_name" name="name" class="form-control" required>
-                        </div>
 
-                        <!-- Operator Selection -->
-                        <div class="mb-3">
-                            <label for="operators" class="form-label">Assign Operators:</label>
-                            <select name="operators" id="operators" class="form-select" multiple>
-                                {% for operator in operators %}
-                                    <option value="{{ operator.id }}">{{ operator.user.username }}</option>
-                                {% empty %}
-                                    <option disabled>No operators available</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <!-- Category Input -->
-                        <div class="mb-3">
-                            <label for="categories" class="form-label">Categories:</label>
-                            <input type="text" id="categories" name="categories" class="form-control" required>
-                            <small class="text-muted">Enter multiple categories separated by commas.</small>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-success">Create Queue</button>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- JavaScript -->
@@ -185,12 +159,7 @@
     <script src="{% static 'js/script.js' %}"></script>
 
 
-    <!-- <script type="text/javascript">
-        // JavaScript to open the QR code in a new window
-        document.getElementById("openQrCodeBtn").addEventListener("click", function() {
-            var queueId = document.getElementById("queue_id").innerHTML;  // Dynamically get the queue ID
-            var qrCodeWindow = window.open(`customers/generate_qr/${queueId}/`, '_blank', 'width=400,height=400');
-        });
-    </script> -->
+
 </body>
+
 </html>
