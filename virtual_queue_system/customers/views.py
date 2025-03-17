@@ -2,13 +2,14 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm, CreateQueueForm
+# from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm
+from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm, CreateQueueForm, ModifyQueueForm
 from .models import Manager, Operator, Queue, Category
 from guests.models import Guest
 from customers.decorators import manager_required, operator_required
 import datetime
 from django.conf import settings
-from twilio.rest import Client
+# from twilio.rest import Client
 from django.utils.timezone import now
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -90,35 +91,91 @@ def user_logout(request):
     logout(request)
     # logger.info("User logged out successfully")  # Log the logout event
     return redirect('login')  # Redirect to the login page after logout
+
+
 # Manager Dashboard
 @manager_required
 def manager_dashboard(request):
-    manager = Manager.objects.get(user=request.user)
-    queues = Queue.objects.filter(manager=manager).prefetch_related('operator_set')
+    manager   = Manager.objects.get(user=request.user)
+    queues    = Queue.objects.filter(manager=manager).prefetch_related('operator_set')
     operators = Operator.objects.filter(manager=manager)
 
     for queue in queues:
         print(f"Queue: {queue.name}, Assigned Operators: {[op.user.username for op in queue.operator_set.all()]}") 
 
-    context = {"queues": queues, "operators": operators}
+    context = {"queues"    : queues, 
+               "operators" : operators,
+               "manager"   : manager}
     return render(request, "manager.html", context)
 
 # Create Queue
 @manager_required
 def create_queue(request):
-    manager = request.user.manager
+    manager   = request.user.manager
     operators = Operator.objects.filter(manager=manager)
 
     if request.method == "POST":
         form = CreateQueueForm(request.POST, manager=manager)
         if form.is_valid():
-            queue = form.save(commit=False)
-            queue.manager = manager  
-            queue.save()
-            form.save_m2m()  
+        # Get operator info
+            # List of selected operator PKs (Operator has no id as the user is its id)
+            selected_operator_ids = form.cleaned_data['operators']  
+            print(f"HERE selected_operator_ids: {selected_operator_ids}")
 
+            # Fetch actual Operator objects based on their PK
+            selected_operators = Operator.objects.filter(pk__in=selected_operator_ids)  
+            # create a new queue object
+            queue = Queue.objects.create(name=form.cleaned_data['name'],
+                                         active=True,
+                                         manager=manager)
+            # assign operators to queues
+            print(f"HERE selected_operators: {selected_operators}")
+            
+            queue.operator_set.set(selected_operators) 
             # Handle category creation
             categories_input = form.cleaned_data['categories']
+            if categories_input:
+                category_names = [name.strip() for name in categories_input.split(',')]
+                for cat_name in category_names:
+                    if cat_name:
+                        # create a category and assign it to operator
+                        Category.objects.create(name=cat_name, queue=queue)
+
+            return redirect('manager_dashboard')
+        else:
+            print("HERE: form is not valid")
+            print(form.errors)
+    else:
+        print("HERE: loading queue form")
+        print(f"HERE: {manager}")
+        form = CreateQueueForm(manager=manager)
+    return render(request, "create_queue.html", {"form": form, "operators": operators})
+
+
+@manager_required
+def modify_queue(request, queue_id):
+    manager = request.user.manager  # Get the logged-in manager
+    queue = get_object_or_404(Queue, id=queue_id, manager=manager)  # Ensure the manager owns the queue
+
+    if request.method == "POST":
+        form = ModifyQueueForm(request.POST, instance=queue, manager=manager)
+        if form.is_valid():
+            # Get the updated data
+            selected_operator_ids = form.cleaned_data['operators']
+            selected_operators = Operator.objects.filter(pk__in=selected_operator_ids)
+            print(f"HERE selected_operator_ids: {selected_operator_ids}")
+            print(f"HERE selected_operators:    {selected_operators}")
+
+            # Update queue fields
+            queue.name = form.cleaned_data['name']
+            queue.save()
+
+            # Update Many-to-Many relationship
+            queue.operator_set.set(selected_operators)
+
+            # Handle categories update
+            categories_input = form.cleaned_data['categories']
+            queue.category_set.all().delete()  # Remove existing categories
             if categories_input:
                 category_names = [name.strip() for name in categories_input.split(',')]
                 for cat_name in category_names:
@@ -130,9 +187,9 @@ def create_queue(request):
             print("HERE: form is not valid")
             print(form.errors)
     else:
-        print("HERE: loading queue form")
-        form = CreateQueueForm(manager=manager)
-    return render(request, "create_queue.html", {"form": form, "operators": operators})
+        form = ModifyQueueForm(instance=queue, manager=manager)
+
+    return render(request, 'modify_queue.html', {"form": form, "queue": queue})
 
 
 @manager_required
@@ -163,7 +220,23 @@ def generate_qr_code(request, queue_id):
     return response
 
 
+
+# @operator_required
+# def operator_dashboard(request):
+#     # manager   = Manager.objects.get(user=request.user)
+#     # print(manager)
+#     # print(type(manager))
+#     # queues    = Queue.objects.filter(manager=manager)
+#     # operators = Operator.objects.filter(manager=manager)
+
+
+#     # context  = {"queues" : queues,
+#     #             "operators" : operators,}
+    
+#     return render(request, 'operator.html', {})
 # Operator Dashboard
+
+
 @operator_required
 def operator_dashboard(request):
     operator = Operator.objects.get(user=request.user)
@@ -192,6 +265,9 @@ def operator_dashboard(request):
         })
     return render(request, 'operator.html', {'operator': operator, 'queues': queues, "walked_away_guests": walked_away_guests, "queue_data": queue_data,'customers_assisted': customers_assisted,
             'avg_service_time': round(avg_service_time, 2)})
+
+
+
 
 # ========== QUEUE BEHAVIOR ==========
 chosenQueues = []
