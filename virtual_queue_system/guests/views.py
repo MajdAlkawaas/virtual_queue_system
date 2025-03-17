@@ -7,7 +7,6 @@ from django.utils import timezone
 
     
 def guest_page(request, queue_id):
-
     queue      = Queue.objects.get(pk=queue_id)
     manager    = Manager.objects.get(pk=queue.manager)
     customer   = manager.customer
@@ -50,3 +49,11 @@ def queue_guest(request, queue_id, guest_id):
 
     context = {'guest': guest}
     return render(request, "queue_dashboard.html", context)
+
+def game(request, queue_id, guest_id):
+    guest = Guest.objects.filter(id=guest_id).first()  # Simple fetch without raising an error
+
+    context = {
+        'guest': guest
+    }
+    return render(request, "game.html", context)
