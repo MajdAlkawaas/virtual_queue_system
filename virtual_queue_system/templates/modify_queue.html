@@ -112,8 +112,9 @@
                     <div class="mb-3">
                         <div class="custom-multi-select">
                             <label for="multiSelect" class="form-label">Assign Operators:</label>
-                            <select id="multiSelect" multiple>
+                            <select id="multiSelect" name="operators" multiple>
                                 {% for value, label in form.fields.operators.choices %}
+
                                     <option value="{{ value }}" {% if value in form.operators.value %}selected{% endif %}>
                                         {{ label }}
                                     </option>
@@ -134,6 +135,7 @@
     
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary mt-3">Update Queue</button>
+                    <!-- <a class="btn btn-danger mt-3" href="{% 'delete_queue' %}">Delete</a> -->
                 </form>
             </div>
         </div>
@@ -142,64 +144,82 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const selectElement = document.getElementById("multiSelect");
-        const selectedItemsContainer = document.querySelector(".selected-items");
-        const placeholder = document.querySelector(".selected-items .placeholder");
+document.addEventListener("DOMContentLoaded", function () {
+    const selectElement = document.getElementById("multiSelect");
+    const selectedItemsContainer = document.querySelector(".selected-items");
+    const placeholder = document.querySelector(".selected-items .placeholder");
 
-        const dropdown = document.createElement("div");
-        dropdown.classList.add("custom-dropdown");
-        selectElement.parentNode.appendChild(dropdown);
+    const dropdown = document.createElement("div");
+    dropdown.classList.add("custom-dropdown");
+    selectElement.parentNode.appendChild(dropdown);
 
-        Array.from(selectElement.options).forEach(option => {
-            const label = document.createElement("label");
-            label.innerHTML = `<input type="checkbox" value="${option.value}" ${option.selected ? 'checked' : ''}> ${option.text}`;
-            dropdown.appendChild(label);
-        });
-
-        function updateSelectedItems() {
-            const selectedCheckboxes = dropdown.querySelectorAll("input:checked");
-            selectedItemsContainer.innerHTML = "";
-
-            if (selectedCheckboxes.length === 0) {
-                selectedItemsContainer.appendChild(placeholder);
-            } else {
-                selectedCheckboxes.forEach(checkbox => {
-                    const tag = document.createElement("span");
-                    tag.classList.add("selected-tag");
-                    tag.textContent = checkbox.nextSibling.nodeValue.trim();
-                    
-                    const removeIcon = document.createElement("span");
-                    removeIcon.textContent = " ×";
-                    removeIcon.addEventListener("click", function () {
-                        checkbox.checked = false;
-                        updateSelectedItems();
-                    });
-
-                    tag.appendChild(removeIcon);
-                    selectedItemsContainer.appendChild(tag);
-                });
-            }
-        }
-
-        dropdown.addEventListener("change", function (event) {
-            if (event.target.tagName === "INPUT") {
-                updateSelectedItems();
-            }
-        });
-
-        selectedItemsContainer.addEventListener("click", function () {
-            dropdown.classList.toggle("show");
-        });
-
-        document.addEventListener("click", function (event) {
-            if (!selectElement.parentNode.contains(event.target)) {
-                dropdown.classList.remove("show");
-            }
-        });
-
-        updateSelectedItems(); // Ensure selected items are displayed on load
+    // Populate custom dropdown with checkboxes
+    Array.from(selectElement.options).forEach(option => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" value="${option.value}" ${option.selected ? 'checked' : ''}> ${option.text}`;
+        dropdown.appendChild(label);
     });
+
+    // Function to update the selected items UI and hidden select element
+    function updateSelectedItems() {
+        const selectedCheckboxes = dropdown.querySelectorAll("input:checked");
+        selectedItemsContainer.innerHTML = "";
+
+        // Clear all selected options in the <select>
+        Array.from(selectElement.options).forEach(opt => (opt.selected = false));
+
+        if (selectedCheckboxes.length === 0) {
+            selectedItemsContainer.appendChild(placeholder);
+        } else {
+            selectedCheckboxes.forEach(checkbox => {
+                // Create tag display
+                const tag = document.createElement("span");
+                tag.classList.add("selected-tag");
+                tag.textContent = checkbox.nextSibling.nodeValue.trim();
+                
+                // Add remove button
+                const removeIcon = document.createElement("span");
+                removeIcon.textContent = " ×";
+                removeIcon.addEventListener("click", function () {
+                    checkbox.checked = false;
+                    updateSelectedItems();
+                });
+
+                tag.appendChild(removeIcon);
+                selectedItemsContainer.appendChild(tag);
+
+                // Mark the corresponding <option> as selected
+                const matchingOption = selectElement.querySelector(`option[value="${checkbox.value}"]`);
+                if (matchingOption) {
+                    matchingOption.selected = true;
+                }
+            });
+        }
+    }
+
+    // Ensure pre-selected operators appear when the page loads
+    updateSelectedItems();
+
+    // Listen for checkbox selection changes
+    dropdown.addEventListener("change", function (event) {
+        if (event.target.tagName === "INPUT") {
+            updateSelectedItems();
+        }
+    });
+
+    // Open/close dropdown on click
+    selectedItemsContainer.addEventListener("click", function () {
+        dropdown.classList.toggle("show");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!selectElement.parentNode.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+});
+
 </script>
 </body>
 </html>
