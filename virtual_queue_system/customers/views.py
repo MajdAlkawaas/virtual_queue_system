@@ -10,8 +10,15 @@ import datetime
 from django.conf import settings
 from twilio.rest import Client
 from django.utils.timezone import now
-from django.contrib import messagesfrom django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.shortcuts import get_object_or_404
 import qrcode
+
+
+
+def homepage(request):
+    return render(request, 'index.html') 
+
 
 # Manager signup view
 def manager_signup(request):
