@@ -6,6 +6,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Create Queue</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Custom Multi-Select Dropdown */
+.custom-multi-select {
+    position: relative;
+    /* width: 250px; */
+}
+
+/* Hidden default select */
+.custom-multi-select select {
+    display: none;
+}
+
+/* Styled dropdown button */
+.selected-items {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
+    min-height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+/* Placeholder text */
+.selected-items .placeholder {
+    background-color: rgb(33 37 41 / 0%);
+}
+
+/* Selected item tags */
+.selected-items .selected-tag {
+    background: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin: 2px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+/* Remove icon */
+.selected-items .selected-tag span {
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Custom dropdown list */
+.custom-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: none;
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Checkbox list inside dropdown */
+.custom-dropdown label {
+    display: block;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.custom-dropdown label:hover {
+    background: #f1f1f1;
+}
+
+/* Show dropdown */
+.custom-dropdown.show {
+    display: block;
+}
+
+    </style>
+
 </head>
 <body class="bg-light">
 
@@ -31,14 +114,20 @@
 
                 <!-- Operator Selection -->
                 <div class="mb-3">
-                    <label for="operators" class="form-label">Assign Operators:</label>
-                    <select name="operators" id="operators" class="form-select" multiple>
-                        {% for operator in operators %}
-                            <option value="{{ operator.id }}">{{ operator.user.username }}</option>
-                        {% empty %}
-                            <option disabled>No operators available</option>
-                        {% endfor %}
-                    </select>
+                    <div class="custom-multi-select">
+                        <label for="multiSelect" class="form-label">Assign Operators:</label>
+                
+                        <select id="multiSelect" multiple>
+                            {% for value, label in form.fields.operators.choices %}
+                                <option value="{{ value }}" {% if value in form.operators.value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="selected-items">
+                            <span class="placeholder">Select Options</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Category Input -->
@@ -49,12 +138,79 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-success mt-3">Create Queue</button>
+                <button type="submit" class="btn btn-primary mt-3">Create Queue</button>
             </form>
         </div>
     </div>
 </div>
 
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const selectElement = document.getElementById("multiSelect");
+    const selectedItemsContainer = document.querySelector(".selected-items");
+    const placeholder = document.querySelector(".selected-items .placeholder");
+
+    // Create dropdown container dynamically
+    const dropdown = document.createElement("div");
+    dropdown.classList.add("custom-dropdown");
+    selectElement.parentNode.appendChild(dropdown);
+
+    // Populate dropdown with checkboxes
+    Array.from(selectElement.options).forEach(option => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" value="${option.text}"> ${option.text}`;
+        dropdown.appendChild(label);
+    });
+
+    // Show/Hide dropdown on click
+    selectedItemsContainer.addEventListener("click", function () {
+        dropdown.classList.toggle("show");
+    });
+
+    // Handle option selection
+    dropdown.addEventListener("change", function (event) {
+        if (event.target.tagName === "INPUT") {
+            updateSelectedItems();
+        }
+    });
+
+    function updateSelectedItems() {
+        const selectedCheckboxes = dropdown.querySelectorAll("input:checked");
+        selectedItemsContainer.innerHTML = ""; // Clear previous selections
+
+        if (selectedCheckboxes.length === 0) {
+            selectedItemsContainer.appendChild(placeholder);
+        } else {
+            selectedCheckboxes.forEach(checkbox => {
+                const tag = document.createElement("span");
+                tag.classList.add("selected-tag");
+                tag.textContent = checkbox.value;
+
+                // Remove item on click
+                const removeIcon = document.createElement("span");
+                removeIcon.textContent = " ×";
+                removeIcon.addEventListener("click", function () {
+                    checkbox.checked = false;
+                    updateSelectedItems();
+                });
+
+                tag.appendChild(removeIcon);
+                selectedItemsContainer.appendChild(tag);
+            });
+        }
+    }
+
+    // Hide dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!selectElement.parentNode.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+});
+
+</script>
 </body>
 </html>
