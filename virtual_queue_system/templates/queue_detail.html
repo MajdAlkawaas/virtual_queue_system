@@ -41,19 +41,23 @@
     </nav>
 
     {% if messages %}
-<div class="container mt-3">
-    {% for message in messages %}
-    <div class="alert 
-        {% if message.tags == 'success' %}alert-success
-        {% elif message.tags == 'error' %}alert-danger
-        {% endif %} 
-        alert-dismissible fade show" role="alert">
+    <div class="container mt-3">
+      {% for message in messages %}
+      <div
+        class="alert {% if message.tags == 'success' %}alert-success {% elif message.tags == 'error' %}alert-danger {% endif %} alert-dismissible fade show"
+        role="alert"
+      >
         {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-</div>
-{% endif %}
+    {% endif %}
     <!-- Queue Details -->
     <div class="container mt-4">
       <h2>Queue: {{ queue.name }}</h2>
@@ -64,7 +68,9 @@
             <th>Guest Name</th>
             <th>Status</th>
             <th>Estimated Wait Time</th>
-            <th>Categories</th> <!-- Changed from Actions to Categories -->
+            <th>Categories</th>
+            <th>Actions</th>
+            <!-- Changed from Actions to Categories -->
           </tr>
         </thead>
         <tbody>
@@ -84,11 +90,8 @@
               {% endif %}
             </td>
             <td>
-              {% if not guest.served and not guest.walked_away %}
-              {{ forloop.counter|add:1 }} mins
-              {% else %}
-              N/A
-              {% endif %}
+              {% if not guest.served and not guest.walked_away %} {{
+              forloop.counter|add:1 }} mins {% else %} N/A {% endif %}
             </td>
             <td>
               {% if guest.category %}
@@ -97,10 +100,24 @@
               <span class="text-muted">No Category</span>
               {% endif %}
             </td>
+            <td>
+              <!-- Actions Column -->
+              <form method="POST" action="{% url 'queue_operator_view' %}">
+                {% csrf_token %}
+                <input type="hidden" name="queue_id" value="{{ queue.id }}" />
+                <button
+                  type="submit"
+                  name="btnremove"
+                  class="btn btn-danger btn-sm"
+                >
+                  Remove
+                </button>
+              </form>
+            </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="5" class="text-center">No guests in queue.</td>
+            <td colspan="6" class="text-center">No guests in queue.</td>
           </tr>
           {% endfor %}
         </tbody>
