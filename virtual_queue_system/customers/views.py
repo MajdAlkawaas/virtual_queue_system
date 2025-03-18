@@ -9,7 +9,7 @@ from guests.models import Guest
 from customers.decorators import manager_required, operator_required
 import datetime
 from django.conf import settings
-# from twilio.rest import Client
+from twilio.rest import Client
 from django.utils.timezone import now
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -305,20 +305,20 @@ def queue_detail(request, queue_id):
     return render(request, "queue_detail.html", context)
 
 # Select a queue
-def choose_queue(request, operator, context):
-    chosenQueue = Queue.objects.get(id=request.POST.get("queue_id"))
-    chosenQueues.append(chosenQueue)
+# def choose_queue(request, operator, context):
+#     chosenQueue = Queue.objects.get(id=request.POST.get("queue_id"))
+#     chosenQueues.append(chosenQueue)
 
-    if not chosenQueue.active:
-        chosenQueue.active = True
-        chosenQueue.save()
+#     if not chosenQueue.active:
+#         chosenQueue.active = True
+#         chosenQueue.save()
 
-    guests = Guest.objects.filter(Q(walked_away=False) & Q(removed=False) & Q(served=False) & Q(queue=chosenQueue))
-    guestNumbers = [guest.guest_number for guest in guests]
+#     guests = Guest.objects.filter(Q(walked_away=False) & Q(removed=False) & Q(served=False) & Q(queue=chosenQueue))
+#     guestNumbers = [guest.guest_number for guest in guests]
 
-    context["guests"] = guests
-    context["guestNumbers"] = min(guestNumbers) if guestNumbers else None
-    return render(request, 'queue_operator.html', context)
+#     context["guests"] = guests
+#     context["guestNumbers"] = min(guestNumbers) if guestNumbers else None
+#     return render(request, 'queue_operator.html', context)
 
 def serve_guest(request, operator):
     if request.method == "POST":
@@ -408,4 +408,5 @@ def send_sms(guest_name, guest_phone):
             body=message_to_broadcast,  # Message body
             to=f'whatsapp:{guest_phone}'  # Recipient WhatsApp number
         )
-        messages.success(f"Message sent successfully to {guest_name} ({guest_phone}).")
+        # messages.success({f"Message sent successfully to {guest_name} ({guest_phone})."})
+        # messages.success({}, "Dear Guest, You are next")
