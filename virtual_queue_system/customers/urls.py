@@ -22,5 +22,6 @@ urlpatterns = [
     path('serve_guest/<int:guest_id>/', views.serve_guest, name='serve_guest'),
     path('remove_guest/<int:guest_id>/', views.remove_guest, name='remove_guest'),
     path('', views.homepage, name='homepage'),
+    path("forbidden/", views.forbidden_view, name="forbidden"),
 
 ]

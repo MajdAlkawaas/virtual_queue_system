@@ -386,4 +386,7 @@ def send_sms(guest_name, guest_phone,request):
             body=message_to_broadcast,  # Message body
             to=f'whatsapp:{guest_phone}'  # Recipient WhatsApp number
         )
+        
         messages.success(request, f"Message sent successfully to {guest_name} ({guest_phone})")
+def forbidden_view(request):
+    return HttpResponse("Access Denied", status=403)
