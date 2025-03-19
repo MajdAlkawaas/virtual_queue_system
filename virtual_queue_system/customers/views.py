@@ -290,7 +290,7 @@ def queue_operator_view(request):
             return notify_guest(request, operator)
 
         elif 'btnremove' in request.POST:
-            return remove_guest(operator)
+            return remove_guest(request)
 
     return render(request, 'queue_operator.html', context)
 
@@ -379,21 +379,15 @@ def notify_guest(request, operator):
 
     return redirect('operator_dashboard')
 # Remove a guest
-def remove_guest(operator):
-    # Find the first guest in the operator's assigned queues who has not been served, removed, or walked away
-    guest_to_remove = Guest.objects.filter(
-        queue__operator=operator,  # Get guests from queues assigned to this operator
-        served=False,
-        walked_away=False,
-        removed=False
-    ).order_by('guest_number').first()  # Get the first guest in line
-
-    if guest_to_remove:
-        guest_to_remove.removed = True  # Mark as removed
-        guest_to_remove.end_of_service_time = datetime.datetime.now()  # Log the time
-        guest_to_remove.save()
-
-    return redirect('operator_dashboard')  # Go back to the dashboard
+def remove_guest(request):
+    # remove the guest 
+    print("requestttt",request.POST)
+    guest_id = request.POST.get("guest_number")
+    guest_to_remove = Guest.objects.get(id=guest_id)
+    guest_to_remove.removed = True
+    guest_to_remove.end_of_service_time = datetime.datetime.now()  # Log the removal time
+    guest_to_remove.save()
+    return redirect('operator_dashboard')  # Go back to tsshe dashboard
 
 # Twilio SMS function
 def send_sms(guest_name, guest_phone):

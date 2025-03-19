@@ -113,6 +113,7 @@
             <td>
               <form method="POST" action="{% url 'queue_operator_view' %}">
                 {% csrf_token %}
+
                 <input type="hidden" name="queue_id" value="{{ queue.id }}" />
                 <a
                   href="{% url 'queue_detail' queue.id %}"
