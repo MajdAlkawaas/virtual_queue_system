@@ -1,37 +1,32 @@
-from django.test import TestCase, Client
-from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
 from guests.models import Guest
 from customers.models import Queue, Manager, Category, Customer
 
 User = get_user_model()
 
 class GuestViewsTests(TestCase):
-
     def setUp(self):
-        # Create a User for the Manager
-        self.user = User.objects.create(username="test_manager")
+        # Create User for Manager
+        self.user = User.objects.create_user(username="manager_user", password="password123", is_manager=True)
 
-        # Create a Customer
+        # Create Customer
         self.customer = Customer.objects.create(
             name="Test Customer",
             contact_firstname="John",
             contact_lastname="Doe",
-            email="test@example.com",
+            email="johndoe@example.com",
             phone_number="1234567890",
-            customer_address="123 Street"
+            customer_address="123 Test St"
         )
 
-        # Create a Manager linked to the User
+        # Create Manager with a User
         self.manager = Manager.objects.create(user=self.user, customer=self.customer)
 
-        # Create a Queue linked to the Manager
+        # Create Queue, Category, and Guest
         self.queue = Queue.objects.create(name="Test Queue", manager=self.manager, active=True)
-
-        # Create a Category linked to the Queue
         self.category = Category.objects.create(name="General", queue=self.queue)
-
-        # Create a Guest
         self.guest = Guest.objects.create(
             name="Test Guest",
             phone_number="1234567890",
@@ -47,22 +42,31 @@ class GuestViewsTests(TestCase):
         self.assertTemplateUsed(response, "register.html")
 
     def test_guest_registration(self):
+        """
+        Test if a guest can successfully register in a queue.
+        """
         form_data = {
             "name": "New Guest",
             "phone_number": "0987654321",
             "category": self.category.id
         }
         response = self.client.post(reverse('enter_queue', args=[self.queue.id]), data=form_data)
-        self.assertEqual(response.status_code, 302)  # Expecting a redirect
-        self.assertEqual(Guest.objects.count(), 2)  # New guest should be created
+        self.assertEqual(response.status_code, 302)  # Should redirect after success
+        self.assertEqual(Guest.objects.count(), 2)  # One new guest should be created
 
     def test_queue_guest_view(self):
+        """
+        Test if queue dashboard loads with guest data.
+        """
         response = self.client.get(reverse('queue_guest', args=[self.queue.id, self.guest.id]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "queue_dashboard.html")
         self.assertContains(response, "Test Guest")
 
     def test_refresh_queue_status(self):
+        """
+        Test if queue status updates return the correct JSON response.
+        """
         response = self.client.get(reverse('refresh_queue_status', args=[self.guest.id]), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         data = response.json()
