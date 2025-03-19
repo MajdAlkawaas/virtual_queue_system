@@ -11,11 +11,7 @@
     <link rel="icon" href="images/favicon-32x32.png" type="image/x-icon" />
 
     <!-- Bootstrap & External CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    />
-    <!-- <link rel="stylesheet" href="css/styles.css"> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
   </head>
   <body class="light-mode">
@@ -23,24 +19,12 @@
     <nav class="navbar navbar-expand-lg">
       <div class="container">
         <a class="navbar-brand" href="index.html">Spotique</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="index.html">Home</a>
-            </li>
-            <li class="nav-item">
-              <button class="btn btn-outline-light" id="dark-mode-toggle">
-                🌙
-              </button>
-            </li>
+            <li class="nav-item"><button class="btn btn-outline-light" id="dark-mode-toggle">🌙</button></li>
           </ul>
         </div>
       </div>
@@ -50,23 +34,33 @@
     <div class="hero-section queue-dashboard">
       <div class="queue-status-overlay text-center">
         <h2 class="queue-title">Live Queue Status</h2>
-        <p>
-          Your Position:
-          <strong id="">{{guest.id}}</strong>
-        </p>
-        <p>Name: <strong id="">{{guest.name}}</strong></p>
-        <p>
-          You Entered the Queue at : <strong id="">{{guest.created_at}}</strong>
-        </p>
-        <p>Service : <strong id="">{{guest.category}}</strong></p>
+        <p>Your Position: <strong>{{ guest.id }}</strong></p>
+        <p>Name: <strong>{{ guest.name }}</strong></p>
+        <p>You Entered the Queue at: <strong>{{ guest.created_at }}</strong></p>
+        <p>Service: <strong>{{ guest.category }}</strong></p>
 
-        <!-- <p>Estimated Wait Time: <strong id="wait-time">Calculating...</strong></p> -->
-        <!-- <div class="progress">
-                <div class="progress-bar bg-success" id="progress-bar" style="width: 100%;">Loading...</div>
-            </div> -->
-        <button class="btn btn-info btn-custom mt-3" onclick="fetchQueueData()">
-          Refresh Status
-        </button>
+        <!-- Refresh Status & Walk Away Buttons -->
+        <button class="btn btn-info btn-custom mt-3" id="refreshQueueStatus" {% if guest.walked_away or guest.removed %}disabled{% endif %}>Refresh Status 🔄</button>
+        <button class="btn btn-danger btn-custom mt-3" id="walkAwayBtn" {% if guest.walked_away or guest.removed %}disabled{% endif %}>Walk Away 🚶</button>
+      </div>
+    </div>
+
+    <!-- Refresh Status Modal -->
+    <div class="modal fade" id="queueStatusModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg rounded-4">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title"><strong>Queue Status Updated</strong></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal()"></button>
+          </div>
+          <div class="modal-body text-center">
+            <p><strong>Guest:</strong> <span id="guestName"></span></p>
+            <p><strong>Queue:</strong> <span id="queueName"></span></p>
+            <p><strong>Guests Ahead:</strong> <span id="guestsAhead"></span></p>
+            <p id="nextMessage" class="text-success fs-5 fw-bold"></p>
+            <p><strong>Estimated Wait Time:</strong> <span id="estimatedWaitTime"></span></p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -74,54 +68,15 @@
     <div class="container mt-4 queue-container p-4 rounded shadow">
       <h3 class="text-center">Entertainment</h3>
       <div class="text-center">
-        <button class="btn btn-success btn-custom" onclick="playMusic()">
-          🎵 Play Music
-        </button>
-        {% comment %}
-        <button class="btn btn-primary btn-custom" href="{% url 'game' %}">
-          🎮 Play Game
-        </button>
-        {% endcomment %}
-        <a
-          href="{% url 'game' queue_id=guest.queue.id guest_id=guest.id %}"
-          class="btn btn-primary btn-custom"
-        >
+        <button class="btn btn-success btn-custom" onclick="playMusic()">🎵 Play Music</button>
+        <a href="{% url 'game' queue_id=guest.queue.id guest_id=guest.id %}" class="btn btn-primary btn-custom">
           🎮 Play Game
         </a>
       </div>
     </div>
+
     <div class="container mt-4 queue-container p-4 rounded shadow">
-      <iframe
-        style="border-radius: 12px"
-        src="https://open.spotify.com/embed/playlist/37i9dQZEVXbMwmF30ppw50?utm_source=generator"
-        width="100%"
-        height="352"
-        frameborder="0"
-        allowfullscreen=""
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy"
-      ></iframe>
-    </div>
-    <!-- Guest Feedback & Rating -->
-    <div class="container mt-4 queue-container p-4 rounded shadow">
-      <h2 class="text-center">Rate Your Experience</h2>
-      <p class="text-center">How was your service today?</p>
-      <div class="text-center">
-        <span class="star" onclick="rateExperience(1)">⭐</span>
-        <span class="star" onclick="rateExperience(2)">⭐</span>
-        <span class="star" onclick="rateExperience(3)">⭐</span>
-        <span class="star" onclick="rateExperience(4)">⭐</span>
-        <span class="star" onclick="rateExperience(5)">⭐</span>
-      </div>
-      <textarea
-        class="form-control mt-3"
-        id="feedback"
-        placeholder="Leave a comment..."
-      ></textarea>
-      <button class="btn btn-primary mt-2 w-100" onclick="submitFeedback()">
-        Submit Feedback
-      </button>
-      <p id="rating-message" class="text-center mt-2"></p>
+      <iframe style="border-radius: 12px" src="https://open.spotify.com/embed/playlist/37i9dQZEVXbMwmF30ppw50?utm_source=generator" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
 
     <!-- Footer -->
@@ -131,14 +86,58 @@
 
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- <script src="js/script.js"></script> -->
-    <!-- <script src="js/queue.js"></script> -->
-    <!-- <script src="js/rating.js"></script> -->
-    <!-- <script src="js/entertainment.js"></script> -->
-
     <script src="{% static 'js/script.js' %}"></script>
-    <script src="{% static 'js/queue.js' %}"></script>
-    <script src="{% static 'js/rating.js' %}"></script>
-    <script src="{% static 'js/entertainment.js' %}"></script>
+
+    <!-- Fetch Queue Data Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          // Refresh Status Button
+          document.getElementById("refreshQueueStatus").addEventListener("click", function () {
+              fetch("{% url 'refresh_queue_status' guest.id %}", { method: "GET", headers: { "X-Requested-With": "XMLHttpRequest" } })
+              .then(response => response.json())
+              .then(data => {
+                  document.getElementById("guestName").innerText = data.guest_name;
+                  document.getElementById("queueName").innerText = data.queue_name;
+                  document.getElementById("guestsAhead").innerText = data.guests_ahead === 0 ? "You're Next! 🚀" : data.guests_ahead;
+                  document.getElementById("estimatedWaitTime").innerText = data.estimated_wait_time + " mins";
+                  new bootstrap.Modal(document.getElementById("queueStatusModal")).show();
+              })
+              .catch(error => console.error("Error fetching queue status:", error));
+          });
+
+          // Walk Away Button
+          document.getElementById("walkAwayBtn").addEventListener("click", function () {
+              if (confirm("Are you sure you want to leave the queue?")) {
+                  fetch("{% url 'walk_away' guest.id %}", {
+                      method: "POST",
+                      headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": "{{ csrf_token }}" }
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      document.getElementById("refreshQueueStatus").disabled = true;
+                      document.getElementById("walkAwayBtn").disabled = true;
+                      alert("You have successfully left the queue.");
+                  })
+                  .catch(error => console.error("Error marking guest as walked away:", error));
+              }
+          });
+      });
+
+      // Fix Page Freeze on Modal Close
+      function closeModal() {
+          var modal = document.getElementById("queueStatusModal");
+          var backdrop = document.querySelector(".modal-backdrop");
+
+          if (modal) {
+              var bsModal = bootstrap.Modal.getInstance(modal);
+              if (bsModal) bsModal.hide();
+          }
+          if (backdrop) backdrop.remove();
+
+          document.body.classList.remove("modal-open");
+          document.body.style.overflow = "";
+      }
+    </script>
+
   </body>
 </html>
