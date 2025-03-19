@@ -287,7 +287,7 @@ def queue_operator_view(request):
             return serve_guest(request, operator) 
 
         elif 'btnRequest' in request.POST:
-            return notify_guest(request, operator)
+            return notify_guest(request)
 
         elif 'btnremove' in request.POST:
             return remove_guest(request)
@@ -296,7 +296,7 @@ def queue_operator_view(request):
 
 def queue_detail(request, queue_id):
     queue = Queue.objects.get(id=queue_id)
-    guests = Guest.objects.filter(queue=queue).order_by('guest_number')
+    guests = Guest.objects.filter(queue=queue).order_by('created_at')
 
     context = {
         "queue": queue,
@@ -304,21 +304,6 @@ def queue_detail(request, queue_id):
     }
     return render(request, "queue_detail.html", context)
 
-# Select a queue
-# def choose_queue(request, operator, context):
-#     chosenQueue = Queue.objects.get(id=request.POST.get("queue_id"))
-#     chosenQueues.append(chosenQueue)
-
-#     if not chosenQueue.active:
-#         chosenQueue.active = True
-#         chosenQueue.save()
-
-#     guests = Guest.objects.filter(Q(walked_away=False) & Q(removed=False) & Q(served=False) & Q(queue=chosenQueue))
-#     guestNumbers = [guest.guest_number for guest in guests]
-
-#     context["guests"] = guests
-#     context["guestNumbers"] = min(guestNumbers) if guestNumbers else None
-#     return render(request, 'queue_operator.html', context)
 
 def serve_guest(request, operator):
     if request.method == "POST":
@@ -337,12 +322,12 @@ def serve_guest(request, operator):
             served=False,
             walked_away=False,
             removed=False
-        ).order_by('guest_number').first()  # Get the first guest in order
+        ).order_by('created_at').first()  # Get the first guest in order
         
         if guest_to_serve:
             guest_to_serve.served = True
             guest_to_serve.end_of_service_time = datetime.datetime.now()
-            guest_to_serve.operator = operator  # Assign operator serving the guest
+            guest_to_serve.operator = operator 
             guest_to_serve.save()
             messages.success(request, f"Guest {guest_to_serve.name} has been served.")
         
@@ -350,35 +335,34 @@ def serve_guest(request, operator):
 
 
 # Notify a guest (send SMS)
-def notify_guest(request, operator):
+def notify_guest(request):
     if request.method == "POST":
-        queue_id = request.POST.get("queue_id")  # Get queue ID from form submission
+        queue_id = request.POST.get("queue_id")
         if not queue_id:
             return redirect('operator_dashboard')  # Safety check
 
         # Fetch the specific queue
         queue = Queue.objects.filter(id=queue_id).first()
         if not queue:
-            return redirect('operator_dashboard')  # If queue does not exist, redirect
+            return redirect('operator_dashboard')
 
-        # Get the next guest in this queue who hasn't been served, removed, or walked away
+        # Ensure guest order is based ONLY on guest_number
         guest_to_notify = Guest.objects.filter(
             queue=queue,
             served=False,
             walked_away=False,
             removed=False
-        ).order_by('guest_number').first()
-
+        ).order_by('created_at').first()
         if guest_to_notify:
-            guest_to_notify.begin_of_service_time = now()  # Mark as notified
+            guest_to_notify.begin_of_service_time = now()  # 
             guest_to_notify.save()
 
-            # Send SMS alert to the guest
-            send_sms(guest_to_notify.name, guest_to_notify.phone_number)
+            # Send SMS alert
+            send_sms(guest_to_notify.name, guest_to_notify.phone_number, request)
             print(f"Notification sent to {guest_to_notify.name} in queue {queue.name}")
-
+        
     return redirect('operator_dashboard')
-# Remove a guest
+
 def remove_guest(request):
     # remove the guest 
     print("requestttt",request.POST)
@@ -390,7 +374,7 @@ def remove_guest(request):
     return redirect('operator_dashboard')  # Go back to tsshe dashboard
 
 # Twilio SMS function
-def send_sms(guest_name, guest_phone):
+def send_sms(guest_name, guest_phone,request):
     
     message_to_broadcast = f"Hello {guest_name}, it's your turn! Please proceed to the counter."
 
@@ -402,5 +386,4 @@ def send_sms(guest_name, guest_phone):
             body=message_to_broadcast,  # Message body
             to=f'whatsapp:{guest_phone}'  # Recipient WhatsApp number
         )
-        # messages.success({f"Message sent successfully to {guest_name} ({guest_phone})."})
-        # messages.success({}, "Dear Guest, You are next")
+        messages.success(request, f"Message sent successfully to {guest_name} ({guest_phone})")
