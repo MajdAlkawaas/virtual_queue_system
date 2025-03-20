@@ -20,7 +20,7 @@
     />
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
   </head>
-  <body class="light-mode">
+  <body class="light-mode" style="background: url('{% static "images/backg.webp" %}')">
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg">
       <div class="container">
@@ -35,13 +35,13 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
+            {% comment %} <li class="nav-item">
               <a
                 class="nav-link"
                 href="{% url 'queue_guest' queue_id=2 guest_id=12 %}"
                 >Back to Queue</a
               >
-            </li>
+            </li> {% endcomment %}
             <li class="nav-item">
               <button class="btn btn-outline-light" id="dark-mode-toggle">
                 🌙
@@ -86,7 +86,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer mt-5 py-3 text-center">
+    <footer class="footer mt-auto py-3 bg-dark text-white text-center">
       <p>© 2025 Spotique. All rights reserved.</p>
     </footer>
 
