@@ -346,7 +346,7 @@ def queue_operator_view(request):
 
 def queue_detail(request, queue_id):
     queue = Queue.objects.get(id=queue_id)
-    guests = Guest.objects.filter(queue=queue).order_by('created_at')
+    guests = Guest.objects.filter(queue=queue).order_by('guest_number')
 
     context = {
         "queue": queue,
@@ -372,7 +372,7 @@ def serve_guest(request, operator):
             served=False,
             walked_away=False,
             removed=False
-        ).order_by('created_at').first()  # Get the first guest in order
+        ).order_by('guest_number').first()  # Get the first guest in order
         
         if guest_to_serve:
             guest_to_serve.served = True
@@ -402,7 +402,7 @@ def notify_guest(request):
             served=False,
             walked_away=False,
             removed=False
-        ).order_by('created_at').first()
+        ).order_by('guest_number').first()
         if guest_to_notify:
             guest_to_notify.begin_of_service_time = now()  # 
             guest_to_notify.save()
