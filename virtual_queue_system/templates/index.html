@@ -53,7 +53,7 @@
               <a class="nav-link" href="{% url 'login' %}">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Register</a>
+              {% comment %} <a class="nav-link" href="#">Register</a> {% endcomment %}
             </li>
             <li class="nav-item">
               <button
@@ -86,9 +86,9 @@
             A smart queue management system with real-time updates &
             entertainment.
           </p>
-          <a href="#" class="btn btn-primary btn-lg animated bounceIn"
-            >Get Started</a
-          >
+          <a href="{% url 'contact' %}" class="btn btn-primary btn-lg animated bounceIn">
+            Get Started
+        </a>
         </div>
       </div>
     </header>

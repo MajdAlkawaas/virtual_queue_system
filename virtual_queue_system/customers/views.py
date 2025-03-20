@@ -251,7 +251,7 @@ def delete_queue(request, queue_id):
     if request.method == "POST":
         queue.delete()
         messages.success(request, f'Queue "{queue.name}" has been deleted successfully.')
-        return redirect('dashboard')  # Redirect to your main dashboard or queue list page
+        return redirect('manager_dashboard')  # Redirect to your main dashboard or queue list page
 
     return redirect('delete_queue_confirm', queue_id=queue_id)
 
@@ -577,3 +577,6 @@ def queue_operator_stats_view(request):
 
     
     return render(request, 'stats.html', {'queue_stats': queue_stats, 'operator_stats': operator_stats})
+
+def contact(request):
+    return render(request, 'contact.html')
