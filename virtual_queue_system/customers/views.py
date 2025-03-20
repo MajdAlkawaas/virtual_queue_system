@@ -50,7 +50,7 @@ def user_login(request):
     if request.method == 'POST':
         print('HERE: method is post')
         form = LoginForm(request.POST)
-        print("HERE: ", form.errors)
+        # print("HERE: ", form.errors)
 
         if form.is_valid():
             username = form.cleaned_data.get('username')
