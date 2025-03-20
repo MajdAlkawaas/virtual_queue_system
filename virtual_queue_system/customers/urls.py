@@ -21,6 +21,7 @@ urlpatterns = [
     path('queue/<int:queue_id>/delete/',         views.delete_queue_confirm, name='delete_queue_confirm'),
     path('queue/<int:queue_id>/delete/confirm/', views.delete_queue,         name='delete_queue'),
 
+    path('stats', views.queue_operator_stats_view,         name='queue_operator_stats_view'),
     
    
     path('operator_dashboard', views.operator_dashboard, name='operator_dashboard'),

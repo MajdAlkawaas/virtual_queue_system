@@ -1,0 +1,179 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotique - Manager Dashboard</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/favicon-32x32.png' %}" type="image/x-icon">
+
+    <!-- Bootstrap & Custom Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light" id="dark-mode-toggle">🌙</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Manager Dashboard Overview -->
+    <header class="manager-hero">
+        <div class="overlay-box">
+            <h1 class="animated-text">Manager Dashboard</h1>
+            <p class="animated fadeIn">Monitor queue performance & manage operators efficiently.</p>
+            <div class="manager-info">
+                <p><strong>Name:</strong> <span id="manager-name">{{user.username}}</span></p>
+                <p><strong>Manager ID:</strong> <span id="manager-id">{{user.id}}</span></p>
+            </div>
+        </div>
+    </header>
+
+
+
+
+<!-- Queue & Operator Management -->
+<section class="container mt-5">
+    <h2 class="text-center fade-in">Manage Queues & Operators</h2>
+</section>
+
+<!-- Tabs for Queues & Operators -->
+<section class="container mt-5">
+    <ul class="nav nav-tabs" id="managementTabs" role="tablist">
+        <!-- Queue Tab -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="queues-tab" data-bs-toggle="tab" data-bs-target="#queues"
+                type="button" role="tab" aria-controls="queues" aria-selected="true" style="color:#00a1c3">Queues</button>
+        </li>
+        <!-- Operator Tab -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="operators-tab" data-bs-toggle="tab" data-bs-target="#operators"
+                type="button" role="tab" aria-controls="operators" aria-selected="false" style="color:#00a1c3">Operators</button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="managementTabsContent">
+        <!-- Queue Stats Table -->
+        <div class="tab-pane fade show active" id="queues" role="tabpanel" aria-labelledby="queues-tab">
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <h4 class="fade-in">Active Queues</h4>
+                    <table class="table table-hover fade-in">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Queue Name</th>
+                                <th>Most Selected Category</th>
+                                <th>Average number of guests per day</th>
+                                <th>Served Guests %</th>
+                                <th>Average Service time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queue-list">
+                            {% for queue in queue_stats %}
+                            <tr>
+
+                                <td>{{ queue.queue_id }}</td>
+                                <td>{{ queue.queue }}</td>
+                                <td>{{queue.most_selected_category}}</td>
+                                <td>{{queue.avg_guests_per_day}}</td>
+                                <td>{{queue.percentage_served}}</td>
+                                <td>{{queue.avg_service_time}}</td>
+
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No queues available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Operator Management Table -->
+        <div class="tab-pane fade" id="operators" role="tabpanel" aria-labelledby="operators-tab">
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <h4 class="fade-in">Active Operators</h4>
+                    <table class="table table-hover fade-in">
+                        <thead>
+                            <tr>
+
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Avg served/Day</th>
+                                <th>Avg service time</th>
+                                <th>Queues Count</th>
+                                <th>Most served Queue</th>
+                                <th>Most served Category</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queue-list">
+                            {% for operator in operator_stats %}
+                            <tr>
+
+                                <td>{{ operator.operator_pk  }}</td>
+                                <td>{{ operator.operator  }}</td>
+                                <td>{{ operator.avg_served_per_day }}</td>
+                                <td>{{ operator.avg_service_time }}</td>
+                                <td>{{ operator.num_queues }}</td>
+                                <td>{{ operator.queue_most_served }}</td>
+                                <td>{{ operator.most_served_category }}</td>
+
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No queues available.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Button for Adding an Operator -->
+                
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+
+    </div>
+    <footer class="footer mt-5 py-3 bg-dark text-white text-center">
+        <p>© 2025 Spotique. All rights reserved.</p>
+      </footer>
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+
+
+
+</body>
+
+</html>
+
+

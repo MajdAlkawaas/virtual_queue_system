@@ -441,3 +441,139 @@ def send_sms(guest_name, guest_phone,request):
 
 def forbidden_view(request):
     return HttpResponse("Access Denied", status=403)
+
+
+
+
+def queue_statistics(manager):
+    """
+    Generate statistics for each queue managed by the currently logged-in manager, including:
+    - Most selected category
+    - Average number of guests per day
+    - Percentage of guests served
+    - Average service time
+    """
+    queues = Queue.objects.filter(manager=manager)
+    stats = []
+    
+    for queue in queues:
+        guests = Guest.objects.filter(queue=queue)
+        total_guests = guests.count()
+        
+        # Find the most selected category in the queue
+        most_selected_category = (
+            guests.values('category__name')
+            .annotate(count=Count('category'))
+            .order_by('-count')
+            .first()
+        )
+        
+        # Calculate average number of guests per day
+        if total_guests > 0:
+            first_guest = guests.earliest('created_at').created_at.date()
+            last_guest = guests.latest('created_at').created_at.date()
+            days_count = max(1, (last_guest - first_guest).days)
+            avg_guests_per_day = total_guests / days_count
+        else:
+            avg_guests_per_day = 0
+        
+        # Calculate percentage of guests served
+        served_guests = guests.filter(served=True).count()
+        percentage_served = (served_guests / total_guests * 100) if total_guests else 0
+        
+        # Calculate average service time
+        avg_service_time = guests.aggregate(avg_time=Avg(ExpressionWrapper(F('end_of_service_time') - F('begin_of_service_time'), output_field=fields.DurationField())))['avg_time']
+        
+        stats.append({
+            'queue_id': queue.id,
+            'queue': queue,
+            'most_selected_category': most_selected_category['category__name'] if most_selected_category else 'N/A',
+            'avg_guests_per_day': round(avg_guests_per_day, 2),
+            'percentage_served': round(percentage_served, 2),
+            'avg_service_time': avg_service_time if avg_service_time else 'N/A'
+        })
+    
+    return stats
+
+def operator_statistics(manager):
+    """
+    Generate statistics for each operator managed by the currently logged-in manager, including:
+    - Average number of guests served per day
+    - Average service time per guest
+    - Number of queues assigned
+    - The queue where they served the most guests
+    - The most served category
+    """
+    operators = Operator.objects.filter(manager=manager)
+    stats = []
+    
+    for operator in operators:
+        guests = Guest.objects.filter(operator=operator, served=True)
+        total_served = guests.count()
+        
+        # Calculate average guests served per day
+        if total_served > 0:
+            first_guest = guests.earliest('created_at').created_at.date()
+            last_guest = guests.latest('created_at').created_at.date()
+            days_count = max(1, (last_guest - first_guest).days)
+            avg_served_per_day = total_served / days_count
+        else:
+            avg_served_per_day = 0
+        
+        # Calculate average service time per guest
+        avg_service_time = guests.aggregate(avg_time=Avg(ExpressionWrapper(F('end_of_service_time') - F('begin_of_service_time'), output_field=fields.DurationField())))['avg_time']
+        
+        # Find the queue where the operator served the most guests
+        queue_most_served = (
+            guests.values('queue__name')
+            .annotate(count=Count('queue'))
+            .order_by('-count')
+            .first()
+        )
+        
+        # Find the most served category by the operator
+        most_served_category = (
+            guests.values('category__name')
+            .annotate(count=Count('category'))
+            .order_by('-count')
+            .first()
+        )
+        
+        stats.append({
+            'operator_pk' :operator.pk,
+            'operator': operator,
+            'avg_served_per_day': round(avg_served_per_day, 2),
+            'avg_service_time': avg_service_time if avg_service_time else 'N/A',
+            'num_queues': operator.queue.count(),
+            'queue_most_served': queue_most_served['queue__name'] if queue_most_served else 'N/A',
+            'most_served_category': most_served_category['category__name'] if most_served_category else 'N/A'
+        })
+    
+    return stats
+
+def queue_operator_stats_view(request):
+    """
+    View to display queue and operator statistics for the currently logged-in manager.
+    """
+    user = request.user
+    manager = Manager.objects.get(user=user)
+    
+    queue_stats = queue_statistics(manager)
+    operator_stats = operator_statistics(manager)
+    # print("-"*80)
+
+    
+    # for item in queue_stats:
+    #     for key, value in item.items():
+    #         print(f"Key: {key} \n\t {value}")
+    #     print("-"*50)
+    # print("operator")
+    # for item in operator_stats:
+    #     for key, value in item.items():
+    #         print(f"Key: {key} \n\t {value}")
+    #     print("-"*50)
+    
+    # print("-"*80)
+
+    
+    return render(request, 'stats.html', {'queue_stats': queue_stats, 'operator_stats': operator_stats})
