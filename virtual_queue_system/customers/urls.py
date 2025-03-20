@@ -9,12 +9,18 @@ urlpatterns = [
     path('login',            views.user_login,      name='login'),
     path('logout/',          views.user_logout,     name='logout'),
 
+
+
     # Manager related URLs
     path('dashboard',                    views.manager_dashboard,  name='manager_dashboard'),
     path('create_queue',                 views.create_queue,       name='create_queue'),
     path('modify_queue/<int:queue_id>/', views.modify_queue,       name='modify_queue'),
     path('generate_qr/<int:queue_id>/',  views.generate_qr_code,   name='generate_qr_code'),
-   
+
+    path('queue/<int:queue_id>/delete/',         views.delete_queue_confirm, name='delete_queue_confirm'),
+    path('queue/<int:queue_id>/delete/confirm/', views.delete_queue,         name='delete_queue'),
+
+    
    
     path('operator_dashboard', views.operator_dashboard, name='operator_dashboard'),
     path('queue_operator/', views.queue_operator_view, name='queue_operator_view'),

@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Count, Avg, F, ExpressionWrapper, fields
 # from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm
-from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm, CreateQueueForm, ModifyQueueForm
+from .forms import ManagerSignupForm, LoginForm, OperatorSignupForm, CreateQueueForm, ModifyQueueForm, ModifyOperatorForm
 from .models import Manager, Operator, Queue, Category
 from guests.models import Guest
 from customers.decorators import manager_required, operator_required
@@ -14,7 +13,7 @@ from django.utils.timezone import now
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 import qrcode
-
+from datetime import timedelta
 
 
 def homepage(request):
@@ -42,6 +41,8 @@ def operator_signup(request):
     else:
         form = OperatorSignupForm(user=request.user)
     return render(request, 'signup.html', {'form': form, 'user_type': 'Operator'})
+
+
 
 # Login view
 def user_login(request):
@@ -93,11 +94,14 @@ def user_logout(request):
     return redirect('login')  # Redirect to the login page after logout
 
 
+
+# ============= Manager =============
+
 # Manager Dashboard
 @manager_required
 def manager_dashboard(request):
     manager   = Manager.objects.get(user=request.user)
-    queues    = Queue.objects.filter(manager=manager).prefetch_related('operator_set')
+    queues    = Queue.objects.filter(manager=manager)
     operators = Operator.objects.filter(manager=manager)
 
     for queue in queues:
@@ -106,7 +110,16 @@ def manager_dashboard(request):
     context = {"queues"    : queues, 
                "operators" : operators,
                "manager"   : manager}
+    print("-"*50)
+    
+    for key, value in context.items():
+        print(f"Key: {key} \n {value}")
+        print("-"*20)
+    print("-"*50)
+    
     return render(request, "manager.html", context)
+
+# ============= Queue-Manager =============
 
 # Create Queue
 @manager_required
@@ -191,7 +204,6 @@ def modify_queue(request, queue_id):
 
     return render(request, 'modify_queue.html', {"form": form, "queue": queue})
 
-
 @manager_required
 def generate_qr_code(request, queue_id):
     print("HERE: QR code ")
@@ -220,22 +232,28 @@ def generate_qr_code(request, queue_id):
     return response
 
 
+# ============= Delete-Queue =============
 
-# @operator_required
-# def operator_dashboard(request):
-#     # manager   = Manager.objects.get(user=request.user)
-#     # print(manager)
-#     # print(type(manager))
-#     # queues    = Queue.objects.filter(manager=manager)
-#     # operators = Operator.objects.filter(manager=manager)
+@manager_required
+def delete_queue_confirm(request, queue_id):
+    queue = get_object_or_404(Queue, id=queue_id)
+    categories = Category.objects.filter(queue=queue)
 
+    context = { 'queue': queue,
+                'categories': categories
+              }
+    return render(request, 'delete_queue_confirm.html', context)
 
-#     # context  = {"queues" : queues,
-#     #             "operators" : operators,}
-    
-#     return render(request, 'operator.html', {})
-# Operator Dashboard
+@manager_required
+def delete_queue(request, queue_id):
+    queue = get_object_or_404(Queue, id=queue_id)
 
+    if request.method == "POST":
+        queue.delete()
+        messages.success(request, f'Queue "{queue.name}" has been deleted successfully.')
+        return redirect('dashboard')  # Redirect to your main dashboard or queue list page
+
+    return redirect('delete_queue_confirm', queue_id=queue_id)
 
 @operator_required
 def operator_dashboard(request):
@@ -265,8 +283,6 @@ def operator_dashboard(request):
         })
     return render(request, 'operator.html', {'operator': operator, 'queues': queues, "walked_away_guests": walked_away_guests, "queue_data": queue_data,'customers_assisted': customers_assisted,
             'avg_service_time': round(avg_service_time, 2)})
-
-
 
 
 # ========== QUEUE BEHAVIOR ==========
@@ -388,5 +404,6 @@ def send_sms(guest_name, guest_phone,request):
         )
         
         messages.success(request, f"Message sent successfully to {guest_name} ({guest_phone})")
+
 def forbidden_view(request):
     return HttpResponse("Access Denied", status=403)

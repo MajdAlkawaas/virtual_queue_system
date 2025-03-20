@@ -135,7 +135,10 @@
     
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary mt-3">Update Queue</button>
-                    <!-- <a class="btn btn-danger mt-3" href="{% 'delete_queue' %}">Delete</a> -->
+                    <a href="{% url 'delete_queue_confirm' queue.id %}" class="btn btn-danger mt-3 text-end">
+                        Delete Queue
+                    </a>
+                    
                 </form>
             </div>
         </div>
