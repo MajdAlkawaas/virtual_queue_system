@@ -255,6 +255,40 @@ def delete_queue(request, queue_id):
 
     return redirect('delete_queue_confirm', queue_id=queue_id)
 
+
+# ============= Operator-Manager =============
+@manager_required
+def modify_operator(request, operator_pk):
+    print("HERE: modify_operator was called")
+    manager = request.user.manager  # Get the logged-in manager
+    operator = get_object_or_404(Operator, pk=operator_pk, manager=manager)  # Ensure the manager owns the queue
+
+    if request.method == "POST":
+        form = ModifyOperatorForm(request.POST, instance=operator, manager=manager)
+        if form.is_valid():
+            # Get the updated data
+            selected_queue_ids = form.cleaned_data['queues']
+            selected_queues = Queue.objects.filter(pk__in=selected_queue_ids)
+            print(f"HERE selected_queue_ids: {selected_queue_ids}")
+            print(f"HERE selected_queues:    {selected_queues}")
+
+
+            # Update Many-to-Many relationship
+            operator.queue.set(selected_queues)
+
+            return redirect('manager_dashboard')
+        else:
+            print("HERE: form is not valid")
+            print(form.errors)
+    else:
+        form = ModifyOperatorForm(instance=operator, manager=manager)
+
+    return render(request, 'modify_operator.html', {"form": form, "operator": operator})
+
+
+
+
+
 @operator_required
 def operator_dashboard(request):
     operator = Operator.objects.get(user=request.user)

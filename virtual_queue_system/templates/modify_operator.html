@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modify Operator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Custom Multi-Select Dropdown */
+.custom-multi-select {
+    position: relative;
+}
+
+/* Hidden default select */
+.custom-multi-select select {
+    display: none;
+}
+
+/* Styled dropdown button */
+.selected-items {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
+    min-height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+/* Placeholder text */
+.selected-items .placeholder {
+    background-color: rgb(33 37 41 / 0%);
+}
+
+/* Selected item tags */
+.selected-items .selected-tag {
+    background: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin: 2px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+/* Remove icon */
+.selected-items .selected-tag span {
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Custom dropdown list */
+.custom-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: none;
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Checkbox list inside dropdown */
+.custom-dropdown label {
+    display: block;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.custom-dropdown label:hover {
+    background: #f1f1f1;
+}
+
+/* Show dropdown */
+.custom-dropdown.show {
+    display: block;
+}
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4>Update Operator</h4>
+            </div>
+            <div class="card-body">
+                <div class="card-body">
+                    <div class="operator-info mb-4"> 
+
+                      <div class="row"> 
+                        <div class="col-md-12 mb-2"> <strong>First Name:</strong> {{operator.user.first_name}}</div>
+                        <div class="col-md-12 mb-2"> <strong>Last Name:</strong> {{operator.user.last_name}}  </div>
+                        <div class="col-md-12 mb-2"> <strong>Username:</strong> {{operator.user.username}}    </div>
+                        <div class="col-md-12 mb-2"> <strong>Email:</strong> {{operator.user.email}}          </div>
+                      </div>
+                    </div>
+                <form class="needs-validation" method="post">
+                    {% csrf_token %}
+                    <!-- Queue Selection -->
+                    <div class="mb-3">
+                        <div class="custom-multi-select">
+                            <label for="multiSelect" class="form-label">Assign Queues:</label>
+                            <select id="multiSelect" name="queues" multiple>
+                                {% for value, label in form.fields.queues.choices %}
+
+                                    <option value="{{ value }}" {% if value in form.queues.value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="selected-items">
+                                <span class="placeholder">Select Options</span>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary mt-3">Update Queue</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const selectElement = document.getElementById("multiSelect");
+    const selectedItemsContainer = document.querySelector(".selected-items");
+    const placeholder = document.querySelector(".selected-items .placeholder");
+
+    const dropdown = document.createElement("div");
+    dropdown.classList.add("custom-dropdown");
+    selectElement.parentNode.appendChild(dropdown);
+
+    // Populate custom dropdown with checkboxes
+    Array.from(selectElement.options).forEach(option => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" value="${option.value}" ${option.selected ? 'checked' : ''}> ${option.text}`;
+        dropdown.appendChild(label);
+    });
+
+    // Function to update the selected items UI and hidden select element
+    function updateSelectedItems() {
+        const selectedCheckboxes = dropdown.querySelectorAll("input:checked");
+        selectedItemsContainer.innerHTML = "";
+
+        // Clear all selected options in the <select>
+        Array.from(selectElement.options).forEach(opt => (opt.selected = false));
+
+        if (selectedCheckboxes.length === 0) {
+            selectedItemsContainer.appendChild(placeholder);
+        } else {
+            selectedCheckboxes.forEach(checkbox => {
+                // Create tag display
+                const tag = document.createElement("span");
+                tag.classList.add("selected-tag");
+                tag.textContent = checkbox.nextSibling.nodeValue.trim();
+                
+                // Add remove button
+                const removeIcon = document.createElement("span");
+                removeIcon.textContent = " ×";
+                removeIcon.addEventListener("click", function () {
+                    checkbox.checked = false;
+                    updateSelectedItems();
+                });
+
+                tag.appendChild(removeIcon);
+                selectedItemsContainer.appendChild(tag);
+
+                // Mark the corresponding <option> as selected
+                const matchingOption = selectElement.querySelector(`option[value="${checkbox.value}"]`);
+                if (matchingOption) {
+                    matchingOption.selected = true;
+                }
+            });
+        }
+    }
+
+    // Ensure pre-selected Queues appear when the page loads
+    updateSelectedItems();
+
+    // Listen for checkbox selection changes
+    dropdown.addEventListener("change", function (event) {
+        if (event.target.tagName === "INPUT") {
+            updateSelectedItems();
+        }
+    });
+
+    // Open/close dropdown on click
+    selectedItemsContainer.addEventListener("click", function () {
+        dropdown.classList.toggle("show");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!selectElement.parentNode.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+});
+
+</script>
+</body>
+</html>

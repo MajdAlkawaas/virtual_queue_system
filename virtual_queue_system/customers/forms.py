@@ -100,8 +100,6 @@ class LoginForm(forms.Form):
         return cleaned_data
 
 
-
-
 class CreateQueueForm(forms.ModelForm):
     class Meta:
         model = Queue
@@ -180,3 +178,36 @@ class ModifyQueueForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             self.fields['categories'].initial = ", ".join(self.instance.category_set.values_list('name', flat=True))
      
+
+##############################################################################
+
+class ModifyOperatorForm(forms.ModelForm):
+    class Meta:
+        model = Operator
+        fields = ['queues']
+  
+
+    queues = forms.MultipleChoiceField(
+        choices=[],  # Will be set dynamically in __init__
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Assign Queues"
+    )
+ 
+
+    def __init__(self, *args, **kwargs):
+        manager = kwargs.pop('manager', None)
+        super().__init__(*args, **kwargs)
+
+        # Get all queues under the current manager
+        self.fields['queues'].choices = [(queue.id, queue.name) for queue in Queue.objects.filter(manager=manager)]
+
+        # Pre-fill selected queues
+        if self.instance and self.instance.pk:
+            print("HERE: Pre-fill")
+            self.fields['queues'].initial = [queue.id for queue in self.instance.queue.all()]
+
+            print(f"HERE: Pre-fill {self.instance.queue.all()}")
+            print(f"HERE: Pre-fill {self.instance.queue.all()}")
+            print(f"HERE: Pre-fill {[queue.id for queue in self.instance.queue.all()]}")
+
